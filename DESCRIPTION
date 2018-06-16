@@ -1,11 +1,10 @@
 Package: forecastML
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Time Series Forecasting with Machine Learing Methods
+Version: 0.1.0.9000
+Author: Rami Krispin
+Maintainer: Rami Krispin <rami.krispin@gmail.com>
+Description: Using machine learning models to forecast complex time series data (multiple seasonality, regressor, etc.)
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
