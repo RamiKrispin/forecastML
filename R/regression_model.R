@@ -1,9 +1,18 @@
 #' Forecast with Regression Model
 #' @export
 #' @param input A tsibble or ts object
-#' @param y A character, the column name of the depended variable of the input object
-#' @description Visualization of series with its lags,
-#' can be used to identify a correlation between the series and it lags
+#' @param y A character, the column name of the depended variable of the input object, required (and applicable) only when the input is tsibble object
+#' @param x A character, the column names of the independed variable of the input object, applicable when using tsibble object with regressors
+#' @param seasonal A character, optional, create categorical variable/s to model the single or multiple seasonal components. Supporting the
+#' following frequencies structure c("quarter", "month", "week", "yday", "wday", "hour") for quarterly,
+#' monthly, weekly, day of the year, day of the week, and hourly respectively
+#' @param trend A list, define the trend structure. Possible arguments -
+#' "power", an numeric value, defines the polynomial degree of the series index (for example a power = 1 define a linear trend and power = 2 defines a squared index).
+#' "exponential" - a boolean variable, if set to TRUE defines an exponential trend.
+#' "log" - a boolean variable, if set to TRUE defines a log transformation for the trend.
+#' By default, the trend argument is set to a linear trend (i.e., power = 1)
+#' @param lags A positive integer, defines the series lags to be used as input to the model (equivalent to AR process).
+#' @description Forecasting regular time series data with regression models
 #' @examples
 
 
