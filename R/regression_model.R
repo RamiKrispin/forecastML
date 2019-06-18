@@ -2,12 +2,6 @@
 #' @export
 #' @param input A tsibble or ts object
 #' @param y A character, the column name of the depended variable of the input object
-#' If four values provided, the first will be used as the left margin,
-#' the second will be used as the right margin,
-#' the third will be used as the top margin,
-#' and the fourth will be used as the bottom margin.
-#' If a single value provided, it will be used as all four margins.
-#' @param n_plots An integer, define the number of plots per row
 #' @description Visualization of series with its lags,
 #' can be used to identify a correlation between the series and it lags
 #' @examples
