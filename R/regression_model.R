@@ -15,7 +15,8 @@
 #' @param method A character, defines the regression method to be used, currently only "lm" method is available
 #' @param method_arg A list, defines the argument of the selected method
 #' @param scale A character, scaling options of the series, methods available -
-#' c("log", "normal", "standard") for log transformation, normalization, or standardization of the series, respectively
+#' c("log", "normal", "standard") for log transformation, normalization, or standardization of the series, respectively.
+#' If set to NULL (default), no transformation will occur
 #' @description Forecasting regular time series data with regression models
 #' @examples
 
@@ -50,13 +51,20 @@ ts_reg <- function(input,
 
   # Checking the lags argument
   if(!base::is.null(lags)){
-    if(!base::is.numeric(lags) || any(lags %% 1 != 0 ) || any(lags <= 0)){
+    if(!base::is.numeric(lags) || base::any(lags %% 1 != 0 ) || base::any(lags <= 0)){
       stop("The value of the 'ar' argument is not valid. Must be a positive integer")
     }
   }
 
+  # Checking the scale argument
+  if(!is.null(scale)){
+    if(base::length(scale) > 1 || !base::any(c("log", "normal", "standard") %in% scale)){
+      stop("The value of the 'scale' argument are not valid")
+    }
+  }
+
   # Setting the input table
-  if(any(class(input) == "tbl_ts")){
+  if(base::any(base::class(input) == "tbl_ts")){
     df <- input
   } else if(any(class(input) == "ts")){
     df <- as_tsibble(input) %>% setNames(c("index", "y"))
@@ -66,6 +74,22 @@ ts_reg <- function(input,
     }
     x <- NULL
   }
+
+  # Scaling the series
+  if(!base::is.null(scale)){
+    if(scale == "log"){
+      df$y_log <- base::log(df$y)
+      y <- "y_log"
+    } else if(scale == "normal"){
+      df$y_normal <- (df$y - base::min(df$y)) / (base::max(df$y) - base::min(df$y))
+      y <- "y_normal"
+    } else if(scale = "standard"){
+      df$y_standard <- (df$y - base::mean(df$y)) / stats::sd(df$y)
+      y <- "y_standard"
+    }
+  }
+
+
 
   # Setting the frequency component
   if(!base::is.null(seasonal)){
@@ -288,7 +312,8 @@ ts_reg <- function(input,
                                    trend = trend,
                                    lags = lags,
                                    method = method,
-                                   method_arg = method_arg),
+                                   method_arg = method_arg,
+                                   scale = scale),
                  series = df)
   return(output)
 
