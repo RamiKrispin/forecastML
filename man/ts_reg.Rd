@@ -33,7 +33,8 @@ By default, the trend argument is set to a linear trend (i.e., power = 1)}
 \item{method_arg}{A list, defines the argument of the selected method}
 
 \item{scale}{A character, scaling options of the series, methods available -
-c("log", "normal", "standard") for log transformation, normalization, or standardization of the series, respectively}
+c("log", "normal", "standard") for log transformation, normalization, or standardization of the series, respectively.
+If set to NULL (default), no transformation will occur}
 }
 \description{
 Forecasting regular time series data with regression models
