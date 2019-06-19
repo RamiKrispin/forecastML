@@ -83,7 +83,7 @@ ts_reg <- function(input,
     } else if(scale == "normal"){
       df$y_normal <- (df$y - base::min(df$y)) / (base::max(df$y) - base::min(df$y))
       y <- "y_normal"
-    } else if(scale = "standard"){
+    } else if(scale == "standard"){
       df$y_standard <- (df$y - base::mean(df$y)) / stats::sd(df$y)
       y <- "y_standard"
     }
