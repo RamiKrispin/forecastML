@@ -292,14 +292,14 @@ ts_reg <- function(input,
 
 
   if(method == "lm"){
-    f <- stats::as.formula(paste("y ~ ", paste0(x, collapse = " + ")))
+    f <- stats::as.formula(paste(y, "~ ", paste0(x, collapse = " + ")))
 
     if(method_arg$step){
       md_init <- NULL
-      md_init <- stats::lm(f, data = df)
+      md_init <- stats::lm(f, data = df1)
       md <- step(md_init, direction = method_arg$direction)
     } else(
-      md <- stats::lm(f, data = df)
+      md <- stats::lm(f, data = df1)
     )
 
   }
