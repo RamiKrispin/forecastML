@@ -11,7 +11,11 @@
 #' "exponential" - a boolean variable, if set to TRUE defines an exponential trend.
 #' "log" - a boolean variable, if set to TRUE defines a log transformation for the trend.
 #' By default, the trend argument is set to a linear trend (i.e., power = 1)
-#' @param lags A positive integer, defines the series lags to be used as input to the model (equivalent to AR process).
+#' @param lags A positive integer, defines the series lags to be used as input to the model (equivalent to AR process)
+#' @param method A character, defines the regression method to be used, currently only "lm" method is available
+#' @param method_arg A list, defines the argument of the selected method
+#' @param scale A character, scaling options of the series, methods available -
+#' c("log", "normal", "standard") for log transformation, normalization, or standardization of the series, respectively
 #' @description Forecasting regular time series data with regression models
 #' @examples
 
