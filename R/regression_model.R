@@ -49,6 +49,19 @@ ts_reg <- function(input,
     }
   }
 
+  # Setting default values for the trend
+  if(!"power" %in% base::names(trend)){
+    trend$power <- 1
+  }
+
+  if(!"exponential" %in% base::names(trend)){
+    trend$exponential <- FALSE
+  }
+
+  if(!"log" %in% base::names(trend)){
+    trend$log <- FALSE
+  }
+
   # Checking the lags argument
   if(!base::is.null(lags)){
     if(!base::is.numeric(lags) || base::any(lags %% 1 != 0 ) || base::any(lags <= 0)){
