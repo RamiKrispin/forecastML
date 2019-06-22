@@ -239,7 +239,7 @@ ts_reg <- function(input,
         df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         df$wday <- lubridate::wday(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
         df$yday <- lubridate::yday(df[[timestamp]]) %>% base::factor(ordered = FALSE)
-        df$hour <- lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$hour <- (lubridate::hour(df[[timestamp]]) + 1) %>% base::factor(ordered = FALSE)
         x <- c(x, "hour","wday", "yday", "week","month", "quarter")
       } else if(any(seasonal %in% c("hour","wday", "yday","week", "month", "quarter"))){
         if("hour" %in% seasonal){
@@ -280,24 +280,31 @@ ts_reg <- function(input,
 
     else if(freq$unit == "minute"){
       if(base::length(seasonal) == 1 && seasonal == "minute"){
-        if(freq$value)
 
 
-        df$minute <- lubridate::hour(df[[time_stamp]]) + 1 + lubridate::minute(df[[time_stamp]]) / as.numeric(freq$value)
+        df$minute <- lubridate::hour(df[[time_stamp]]) * 2 + (lubridate::minute(df[[time_stamp]]) + freq$value )/ freq$value
 
-            lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE) ### NEED to update
         x <- c(x, "minute")
-      } else if(all(seasonal %in% c("hour", "wday", "yday","week", "month", "quarter"))){
+      } else if(all(seasonal %in% c("minute", "hour", "wday", "yday","week", "month", "quarter"))){
         df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
         df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         df$wday <- lubridate::wday(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
         df$yday <- lubridate::yday(df[[timestamp]]) %>% base::factor(ordered = FALSE)
-        df$hour <- lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE)
-        x <- c(x, "hour","wday", "yday", "week","month", "quarter")
-      } else if(any(seasonal %in% c("hour","wday", "yday","week", "month", "quarter"))){
+        df$hour <- (lubridate::hour(df[[timestamp]]) + 1) %>% base::factor(ordered = FALSE)
+        df$minute <- (lubridate::hour(df[[time_stamp]]) * 2 + (lubridate::minute(df[[time_stamp]]) + freq$value )/ freq$value) %>%
+                      base::factor(ordered = FALSE)
+        x <- c(x, "minute", "hour","wday", "yday", "week","month", "quarter")
+      } else if(any(seasonal %in% c("minute", "hour","wday", "yday","week", "month", "quarter"))){
+        if("minute" %in% seasonal){
+          df$minute <- (lubridate::hour(df[[time_stamp]]) * 2 + (lubridate::minute(df[[time_stamp]]) + freq$value )/ freq$value) %>%
+            base::factor(ordered = FALSE)
+          x <- c(x, "minute")
+        }
+
+
         if("hour" %in% seasonal){
-          df$hour <- lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+          df$hour <- (lubridate::hour(df[[timestamp]]) + 1) %>% base::factor(ordered = FALSE)
           x <- c(x, "hour")
         }
 
