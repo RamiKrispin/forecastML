@@ -34,8 +34,7 @@ ts_reg <- function(input,
 
   `%>%` <- magrittr::`%>%`
 
-  freq <- md <- NULL
-  freq <- base::names(base::which(purrr::map(tsibble::interval(df), ~.x) == 1))
+  freq <- md <- time_stamp <- NULL
 
   # Error handling
 
@@ -88,6 +87,13 @@ ts_reg <- function(input,
     x <- NULL
   }
 
+  time_stamp <- base::attributes(df)$index2
+
+  freq <- base::list(unit = base::names(base::which(purrr::map(tsibble::interval(df), ~.x) > 0)),
+                     value = tsibble::interval(df)[which(names(tsibble::interval(df)) == "minute")] %>% base::as.numeric(),
+                     frequency = stats::frequency(df))
+
+
   # Scaling the series
   if(!base::is.null(scale)){
     if(scale == "log"){
@@ -109,13 +115,13 @@ ts_reg <- function(input,
 
     # Case series frequency is quarterly
 
-    if(freq == "quarter"){
+    if(freq$unit == "quarter"){
       if(base::length(seasonal) == 1 & seasonal == "quarter"){
-        df$quarter <- lubridate::quarter(df$index) %>% base::factor(ordered = FALSE)
+        df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         x <- c(x, "quarter")
       } else if(base::length(seasonal) > 1 & "quarter" %in% seasonal){
         warning("Only quarter seasonal component can be used with quarterly frequency")
-        df$quarter <- lubridate::quarter(df$index) %>% base::factor(ordered = FALSE)
+        df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         x <- c(x, "quarter")
       } else {
         stop("The seasonal component is not valid")
@@ -123,22 +129,22 @@ ts_reg <- function(input,
 
       # Case series frequency is monthly
 
-    } else if(freq == "month"){
+    } else if(freq$unit == "month"){
       if(base::length(seasonal) == 1 && seasonal == "month"){
-        df$month <- lubridate::month(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
+        df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
         x <- c(x, "month")
       } else if(all(seasonal %in% c("month", "quarter"))){
-        df$quarter <- lubridate::quarter(df$index) %>% base::factor(ordered = FALSE)
-        df$month <- lubridate::month(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
+        df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
         x <- c(x, "month", "quarter")
       } else if(any(seasonal %in% c("month", "quarter"))){
         if("month" %in% seasonal){
-          df$month <- lubridate::month(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
+          df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
           x <- c(x, "month")
         }
 
         if("quarter" %in% seasonal){
-          df$quarter <- lubridate::quarter(df$index) %>% base::factor(ordered = FALSE)
+          df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
           x <- c(x, "quarter")
         }
 
@@ -147,28 +153,28 @@ ts_reg <- function(input,
 
       # Case series frequency is weekly
 
-    } else if(freq == "week"){
+    } else if(freq$unit == "week"){
       if(base::length(seasonal) == 1 && seasonal == "week"){
-        df$week <- lubridate::week(df$index) %>% base::factor(ordered = FALSE)
+        df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         x <- c(x, "week")
       } else if(all(seasonal %in% c("week", "month", "quarter"))){
-        df$quarter <- lubridate::quarter(df$index) %>% base::factor(ordered = FALSE)
-        df$month <- lubridate::month(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
-        df$week <- lubridate::week(df$index) %>% base::factor(ordered = FALSE)
+        df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
+        df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         x <- c(x, "week","month", "quarter")
       } else if(any(seasonal %in% c("week", "month", "quarter"))){
         if("week" %in% seasonal){
-          df$week <- lubridate::week(df$index) %>% base::factor(ordered = FALSE)
+          df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
           x <- c(x, "week")
         }
 
         if("month" %in% seasonal){
-          df$month <- lubridate::month(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
+          df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
           x <- c(x, "month")
         }
 
         if("quarter" %in% seasonal){
-          df$quarter <- lubridate::quarter(df$index) %>% base::factor(ordered = FALSE)
+          df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
           x <- c(x, "quarter")
         }
 
@@ -177,44 +183,44 @@ ts_reg <- function(input,
 
       # Case series frequency is daily
 
-    } else if(freq == "day"){
+    } else if(freq$unit == "day"){
       if(base::length(seasonal) == 1 && seasonal == "wday"){
-        df$wday <- lubridate::wday(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
+        df$wday <- lubridate::wday(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
         x <- c(x, "wday")
       } else if(base::length(seasonal) == 1 && seasonal == "yday"){
-        df$yday <- lubridate::yday(df$index) %>% base::factor(ordered = FALSE)
+        df$yday <- lubridate::yday(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         x <- c(x, "yday")
       } else if(all(seasonal %in% c("wday", "yday","week", "month", "quarter"))){
-        df$quarter <- lubridate::quarter(df$index) %>% base::factor(ordered = FALSE)
-        df$month <- lubridate::month(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
-        df$week <- lubridate::week(df$index) %>% base::factor(ordered = FALSE)
-        df$wday <- lubridate::wday(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
-        df$yday <- lubridate::yday(df$index) %>% base::factor(ordered = FALSE)
+        df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
+        df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$wday <- lubridate::wday(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
+        df$yday <- lubridate::yday(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         x <- c(x, "wday", "yday", "week","month", "quarter")
       } else if(any(seasonal %in% c("wday", "yday","week", "month", "quarter"))){
         if("wday" %in% seasonal){
-          df$wday <- lubridate::wday(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
+          df$wday <- lubridate::wday(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
           x <- c(x, "wday")
         }
 
         if("yday" %in% seasonal){
-          df$yday <- lubridate::yday(df$index) %>% base::factor(ordered = FALSE)
+          df$yday <- lubridate::yday(df[[timestamp]]) %>% base::factor(ordered = FALSE)
           x <- c(x, "yday")
         }
 
         if("week" %in% seasonal){
-          df$week <- lubridate::week(df$index) %>% base::factor(ordered = FALSE)
+          df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
           x <- c(x, "week")
         }
 
 
         if("month" %in% seasonal){
-          df$month <- lubridate::month(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
+          df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
           x <- c(x, "month")
         }
 
         if("quarter" %in% seasonal){
-          df$quarter <- lubridate::quarter(df$index) %>% base::factor(ordered = FALSE)
+          df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
           x <- c(x, "quarter")
         }
 
@@ -223,52 +229,112 @@ ts_reg <- function(input,
 
       # Case series frequency is hourly
 
-    } else if(freq == "hour"){
+    } else if(freq$unit == "hour"){
       if(base::length(seasonal) == 1 && seasonal == "hour"){
-        df$hour <- lubridate::hour(df$index) %>% base::factor(ordered = FALSE)
+        df$hour <- lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         x <- c(x, "hour")
       } else if(all(seasonal %in% c("hour", "wday", "yday","week", "month", "quarter"))){
-        df$quarter <- lubridate::quarter(df$index) %>% base::factor(ordered = FALSE)
-        df$month <- lubridate::month(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
-        df$week <- lubridate::week(df$index) %>% base::factor(ordered = FALSE)
-        df$wday <- lubridate::wday(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
-        df$yday <- lubridate::yday(df$index) %>% base::factor(ordered = FALSE)
-        df$hour <- lubridate::hour(df$index) %>% base::factor(ordered = FALSE)
+        df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
+        df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$wday <- lubridate::wday(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
+        df$yday <- lubridate::yday(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$hour <- lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE)
         x <- c(x, "hour","wday", "yday", "week","month", "quarter")
       } else if(any(seasonal %in% c("hour","wday", "yday","week", "month", "quarter"))){
         if("hour" %in% seasonal){
-          df$hour <- lubridate::hour(df$index) %>% base::factor(ordered = FALSE)
+          df$hour <- lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE)
           x <- c(x, "hour")
         }
 
         if("wday" %in% seasonal){
-          df$wday <- lubridate::wday(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
+          df$wday <- lubridate::wday(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
           x <- c(x, "wday")
         }
 
         if("yday" %in% seasonal){
-          df$yday <- lubridate::yday(df$index) %>% base::factor(ordered = FALSE)
+          df$yday <- lubridate::yday(df[[timestamp]]) %>% base::factor(ordered = FALSE)
           x <- c(x, "yday")
         }
 
         if("week" %in% seasonal){
-          df$week <- lubridate::week(df$index) %>% base::factor(ordered = FALSE)
+          df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
           x <- c(x, "week")
         }
 
         if("month" %in% seasonal){
-          df$month <- lubridate::month(df$index, label = TRUE) %>% base::factor(ordered = FALSE)
+          df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
           x <- c(x, "month")
         }
 
         if("quarter" %in% seasonal){
-          df$quarter <- lubridate::quarter(df$index) %>% base::factor(ordered = FALSE)
+          df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
           x <- c(x, "quarter")
         }
 
         warning("For daily frequency only 'hour', 'wday', 'yday', 'week', 'month', or 'quarter' seasonal component could be used with the 'seasonal' argument")
       } else {stop("The seasonal component is not valid")}
     }
+
+
+
+    else if(freq$unit == "minute"){
+      if(base::length(seasonal) == 1 && seasonal == "minute"){
+        if(freq$value)
+
+
+        df$minute <- lubridate::hour(df[[time_stamp]]) + 1 + lubridate::minute(df[[time_stamp]]) / as.numeric(freq$value)
+
+            lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE) ### NEED to update
+        x <- c(x, "minute")
+      } else if(all(seasonal %in% c("hour", "wday", "yday","week", "month", "quarter"))){
+        df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
+        df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$wday <- lubridate::wday(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
+        df$yday <- lubridate::yday(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        df$hour <- lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+        x <- c(x, "hour","wday", "yday", "week","month", "quarter")
+      } else if(any(seasonal %in% c("hour","wday", "yday","week", "month", "quarter"))){
+        if("hour" %in% seasonal){
+          df$hour <- lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+          x <- c(x, "hour")
+        }
+
+        if("wday" %in% seasonal){
+          df$wday <- lubridate::wday(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
+          x <- c(x, "wday")
+        }
+
+        if("yday" %in% seasonal){
+          df$yday <- lubridate::yday(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+          x <- c(x, "yday")
+        }
+
+        if("week" %in% seasonal){
+          df$week <- lubridate::week(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+          x <- c(x, "week")
+        }
+
+        if("month" %in% seasonal){
+          df$month <- lubridate::month(df[[timestamp]], label = TRUE) %>% base::factor(ordered = FALSE)
+          x <- c(x, "month")
+        }
+
+        if("quarter" %in% seasonal){
+          df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+          x <- c(x, "quarter")
+        }
+
+        warning("For daily frequency only 'hour', 'wday', 'yday', 'week', 'month', or 'quarter' seasonal component could be used with the 'seasonal' argument")
+      } else {stop("The seasonal component is not valid")}
+    }
+
+
+
+
+
+
   }
 
   # Setting the trend
