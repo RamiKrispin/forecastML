@@ -243,7 +243,7 @@ ts_reg <- function(input,
         x <- c(x, "hour","wday", "yday", "week","month", "quarter")
       } else if(any(seasonal %in% c("hour","wday", "yday","week", "month", "quarter"))){
         if("hour" %in% seasonal){
-          df$hour <- lubridate::hour(df[[timestamp]]) %>% base::factor(ordered = FALSE)
+          df$hour <- (lubridate::hour(df[[timestamp]]) + 1) %>% base::factor(ordered = FALSE)
           x <- c(x, "hour")
         }
 
@@ -274,16 +274,9 @@ ts_reg <- function(input,
 
         warning("For daily frequency only 'hour', 'wday', 'yday', 'week', 'month', or 'quarter' seasonal component could be used with the 'seasonal' argument")
       } else {stop("The seasonal component is not valid")}
-    }
-
-
-
-    else if(freq$unit == "minute"){
+    } else if(freq$unit == "minute"){
       if(base::length(seasonal) == 1 && seasonal == "minute"){
-
-
         df$minute <- lubridate::hour(df[[time_stamp]]) * 2 + (lubridate::minute(df[[time_stamp]]) + freq$value )/ freq$value
-
         x <- c(x, "minute")
       } else if(all(seasonal %in% c("minute", "hour", "wday", "yday","week", "month", "quarter"))){
         df$quarter <- lubridate::quarter(df[[timestamp]]) %>% base::factor(ordered = FALSE)
@@ -336,13 +329,7 @@ ts_reg <- function(input,
         warning("For daily frequency only 'hour', 'wday', 'yday', 'week', 'month', or 'quarter' seasonal component could be used with the 'seasonal' argument")
       } else {stop("The seasonal component is not valid")}
     }
-
-
-
-
-
-
-  }
+    }
 
   # Setting the trend
   if(!base::is.null(trend$power)){
