@@ -374,7 +374,10 @@ ts_reg <- function(input,
 
   if(method == "lm"){
     if(!base::is.null(x)){
-      f <- stats::as.formula(paste(y, "~ ", paste0(new_features, x, collapse = " + ")))
+      f <- stats::as.formula(paste(y, "~ ",
+                                   base::paste0(base::paste0(x, collapse = " + "),
+                                                base::paste0(new_features, collapse = " + "),
+                                                collapse = " + ")))
     } else{
       f <- stats::as.formula(paste(y, "~ ", paste0(new_features, collapse = " + ")))
     }
