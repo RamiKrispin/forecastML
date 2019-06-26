@@ -86,7 +86,7 @@ ts_reg <- function(input,
   if(base::any(base::class(input) == "tbl_ts")){
     df <- input
   } else if(any(class(input) == "ts")){
-    df <- as_tsibble(input) %>% setNames(c("index", "y"))
+    df <- tsibble::as_tsibble(input) %>% setNames(c("index", "y"))
     y <- "y"
     if(!base::is.null(x)){
       warning("The 'x' argument cannot be used when input is a 'ts' class")
@@ -374,11 +374,7 @@ ts_reg <- function(input,
 
   if(method == "lm"){
     if(!base::is.null(x)){
-      f <- stats::as.formula(paste(y, "~ ",
-                                   base::paste0(x, collapse = " + "),
-                                   " + ",
-                                   base::paste0(new_features, collapse = " + ")
-                                                ))
+      f <- stats::as.formula(paste(y, "~ ", paste0(new_features, x, collapse = " + ")))
     } else{
       f <- stats::as.formula(paste(y, "~ ", paste0(new_features, collapse = " + ")))
     }
