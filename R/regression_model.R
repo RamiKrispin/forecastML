@@ -97,7 +97,7 @@ ts_reg <- function(input,
   time_stamp <- base::attributes(df)$index2
 
   freq <- base::list(unit = base::names(base::which(purrr::map(tsibble::interval(df), ~.x) > 0)),
-                     value = tsibble::interval(df)[which(names(tsibble::interval(df)) == "minute")] %>% base::as.numeric(),
+                     value = tsibble::interval(df)[which(tsibble::interval(df) != 0)] %>% base::as.numeric(),
                      frequency = stats::frequency(df))
 
 
@@ -398,7 +398,8 @@ ts_reg <- function(input,
                                    lags = lags,
                                    method = method,
                                    method_arg = method_arg,
-                                   scale = scale),
+                                   scale = scale,
+                                   frequency = freq),
                  series = df)
 
   final_output <- base::structure(output, class = "forecastML")
