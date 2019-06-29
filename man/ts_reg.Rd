@@ -5,8 +5,8 @@
 \title{Forecast with Regression Model}
 \usage{
 ts_reg(input, y = NULL, x = NULL, seasonal = NULL,
-  trend = list(power = c(1), exponential = FALSE, log = FALSE),
-  lags = NULL, method = "lm", method_arg = list(step = FALSE,
+  trend = list(linear = TRUE, exponential = FALSE, log = FALSE, power =
+  FALSE), lags = NULL, method = "lm", method_arg = list(step = FALSE,
   direction = "both"), scale = NULL)
 }
 \arguments{
@@ -21,7 +21,8 @@ following frequencies structure c("quarter", "month", "week", "yday", "wday", "h
 monthly, weekly, day of the year, day of the week, and hourly respectively}
 
 \item{trend}{A list, define the trend structure. Possible arguments -
-"power", an numeric value, defines the polynomial degree of the series index (for example a power = 1 define a linear trend and power = 2 defines a squared index).
+"linear", a boolean variable, if set to TRUE defines a linear trend (e.g., index of 1,2,3,...,t, for a series with t observations)
+"power", an numeric value, defines the polynomial degree of the series index (for example a power = 0.5 define a square root index and power = 2 defines a squared index).
 "exponential" - a boolean variable, if set to TRUE defines an exponential trend.
 "log" - a boolean variable, if set to TRUE defines a log transformation for the trend.
 By default, the trend argument is set to a linear trend (i.e., power = 1)}
