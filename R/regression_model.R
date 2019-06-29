@@ -376,6 +376,11 @@ ts_reg <- function(input,
     new_features <- c(new_features, "log_trend")
   }
 
+  if(trend$linear){
+    df$linear_trend <- 1:base::nrow(df)
+    new_features <- c(new_features, "linear_trend")
+  }
+
 
 
   # Setting the lags variables
