@@ -432,7 +432,14 @@ trainML <- function(input,
 
 }
 
-
+#' Forecast trainML Model
+#' @export
+#' @param model A trainML object
+#' @param newdata A tsibble object, must be used when the input model was trained with external inputs (i.e., the 'x' argument of the trainML function was used). This input must follow the following structure:
+#' - Use the same time intervals (monthly, daily, hourly, etc.) structure and timestamp class (e.g., yearquarter, yearmonth, POSIXct, etc.) as the original input
+#' - The number of observations must align with the forecasting horizon (the 'h' argument)
+#' -  The timestamp of the first observation must be the consecutive observation of the last observation of the original series
+#' @param h An integer, define the forecast horizon
 
 forecastML <- function(model, newdata = NULL, h){
 
