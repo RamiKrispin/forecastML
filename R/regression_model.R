@@ -1,4 +1,4 @@
-#' Forecast with Regression Model
+#' Train a Forecasting Model with Regression Models
 #' @export
 #' @param input A tsibble or ts object
 #' @param y A character, the column name of the depended variable of the input object, required (and applicable) only when the input is tsibble object
@@ -18,12 +18,12 @@
 #' @param scale A character, scaling options of the series, methods available -
 #' c("log", "normal", "standard") for log transformation, normalization, or standardization of the series, respectively.
 #' If set to NULL (default), no transformation will occur
-#' @description Forecasting regular time series data with regression models
+#' @description Train a forecasting model with regression models
 #' @examples
 
 
 
-ts_reg <- function(input,
+trainML <- function(input,
                    y = NULL,
                    x = NULL,
                    seasonal = NULL,
@@ -429,5 +429,162 @@ ts_reg <- function(input,
   final_output <- base::structure(output, class = "forecastML")
 
   return(final_output)
+
+}
+
+
+
+forecastML <- function(model, newdata = NULL, h){
+
+  forecast_df <- NULL
+  # Error handling
+  if(class(model) != "forecastML"){
+    stop("The input model is invalid, must be a 'forecastML' object")
+  }
+
+  if(base::is.null(h)){
+    stop("The forecast horizon argument, 'h', is missing")
+  } else if(!base::is.numeric(h)){
+    stop("The forecast horizon argument, 'h', must be integer")
+  } else if(h %% 1 != 0){
+    stop("The forecast horizon argument, 'h', must be integer")
+  }
+
+  if(!base::is.null(model$parameters$x) && base::is.null(newdata)){
+    stop("The input model was trained with regressors, the 'newdata' argument must align to the 'x' argument of the trained model")
+  } else if(!base::is.null(model$parameters$x) && !base::all(model$parameters$x %in% base::names(newdata))){
+    stop("The columns names of the 'newdata' input is not aligned with the variables names that was used on the training process")
+  }
+
+  if(!base::is.null(newdata)){
+    if(base::nrow(newdata) != h){
+      warning("The length of the input data ('newdata') is not aligned with the forecast horizon ('h'). Setting the forecast horizon as the number of rows of the input data.")
+      h <- base::nrow(newdata)
+    }
+  }
+
+  # Creating new features for the forecast data frame
+  if(model$parameters$frequency$unit == "year"){
+    start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + model$parameters$frequency$value
+    forecast_df <- base::data.frame(index = base::seq(from = start_date,
+                                                      by = model$parameters$frequency$value,
+                                                      length.out = h))
+  } else if(model$parameters$frequency$unit == "quarter"){
+    start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + lubridate::quarter(model$parameters$frequency$value)
+    forecast_df <- base::data.frame(index = base::seq(from = start_date,
+                                                      by = model$parameters$frequency$value,
+                                                      length.out = h))
+  } else if(model$parameters$frequency$unit == "month"){
+    start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + lubridate::month(model$parameters$frequency$value)
+    forecast_df <- base::data.frame(index = base::seq(from = start_date,
+                                                      by = model$parameters$frequency$value,
+                                                      length.out = h))
+  } else if(model$parameters$frequency$unit == "week"){
+    start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + model$parameters$frequency$value
+    forecast_df <- base::data.frame(index = base::seq(from = start_date,
+                                                      by = model$parameters$frequency$value,
+                                                      length.out = h))
+  } else if(model$parameters$frequency$unit == "day"){
+    start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + lubridate::days(model$parameters$frequency$value)
+    forecast_df <- base::data.frame(index = base::seq(from = start_date,
+                                                      by = model$parameters$frequency$value,
+                                                      length.out = h))
+  } else if(model$parameters$frequency$unit == "hour"){
+    start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + lubridate::hours(model$parameters$frequency$value)
+    forecast_df <- base::data.frame(index = base::seq.POSIXt(from = start_date,
+                                                             by = model$parameters$frequency$unit,
+                                                             length.out = h))
+  } else if(model$parameters$frequency$unit == "minute"){
+    start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + lubridate::minutes(model$parameters$frequency$value)
+    forecast_df <- base::data.frame(index = base::seq.POSIXt(from = start_date,
+                                                             by = base::paste(model$parameters$frequency$value ,"min"),
+                                                             length.out = h))
+  }
+
+
+
+  # Setting the seasonal arguments
+  seasonal <- model$parameters$seasonal
+
+  if(!base::is.null(seasonal)){
+    if("minute" %in% seasonal){
+      forecast_df$minute <- (lubridate::hour(forecast_df[["index"]]) * 2 + (lubridate::minute(forecast_df[["index"]]) + freq$value )/ freq$value) %>%
+        base::factor(ordered = FALSE)
+    }
+
+    if("hour" %in% seasonal){
+      forecast_df$hour <- (lubridate::hour(forecast_df[["index"]]) + 1) %>% base::factor(ordered = FALSE)
+    }
+
+    if("wday" %in% seasonal){
+      forecast_df$wday <- lubridate::wday(forecast_df[["index"]], label = TRUE) %>% base::factor(ordered = FALSE)
+    }
+
+    if("yday" %in% seasonal){
+      forecast_df$yday <- lubridate::yday(forecast_df[["index"]]) %>% base::factor(ordered = FALSE)
+    }
+
+    if("week" %in% seasonal){
+      forecast_df$week <- lubridate::week(forecast_df[["index"]]) %>% base::factor(ordered = FALSE)
+    }
+
+    if("month" %in% seasonal){
+      forecast_df$month <- lubridate::month(forecast_df[["index"]], label = TRUE) %>% base::factor(ordered = FALSE)
+    }
+
+    if("quarter" %in% seasonal){
+      forecast_df$quarter <- lubridate::quarter(forecast_df[["index"]]) %>% base::factor(ordered = FALSE)
+    }
+
+  }
+  # Setting the trend arguments
+  trend <- trend_start <- trend_end <- NULL
+  trend <- model$parameters$trend
+  trend_start <- base::nrow(model$series) + 1
+  trend_end <- trend_start + base::nrow(forecast_df) - 1
+
+  if(base::is.numeric(trend$power)){
+    for(i in trend$power){
+      forecast_df[[base::paste("trend_power_", i, sep = "")]] <- c(trend_start:trend_end) ^ i
+    }
+  }
+
+  if(trend$exponential){
+    forecast_df$exp_trend <- base::exp(trend_start:trend_end)
+  }
+
+  if(trend$log){
+    forecast_df$log_trend <- base::log(trend_start:trend_end)
+  }
+
+  if(trend$linear){
+    forecast_df$linear_trend <- trend_start:trend_end
+  }
+
+  if(!base::is.null(model$parameters$lags)){
+    for(i in model$parameters$lags){
+      forecast_df[[base::paste("lag_", i, sep = "")]] <- c(model$series[[model$parameters$y]][(base::nrow(model$series) - i + 1):base::nrow(model$series)] , base::rep(NA,base::nrow(forecast_df) - i))
+    }
+  }
+
+
+  if(model$parameters$method == "lm"){
+    forecast_df$yhat <- NA
+
+    if(!base::is.null(model$parameters$lags)){
+      for(i in 1:base::nrow(forecast_df)){
+        forecast_df$yhat[i] <- stats::predict(model$model, newdata = forecast_df[i,])
+        for(l in model$parameters$lags){
+          if(i + l <= base::nrow(forecast_df)){
+            forecast_df[[base::paste("lag_", l, sep = "")]][i + l] <- forecast_df$yhat[i]
+          }
+        }
+      }
+    } else {
+      forecast_df$yhat <- stats::predict(model$model, newdata = forecast_df)
+    }
+  }
+
+  return(forecast_df)
 
 }
