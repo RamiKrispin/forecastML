@@ -579,10 +579,24 @@ forecastML <- function(model, newdata = NULL, h){
 
 
   if(model$parameters$method == "lm"){
-    forecast_df$yhat <- NA
+    forecast_df$yhat <- forecast_df$lower <- forecast_df$upper <- NA
 
     if(!base::is.null(model$parameters$lags)){
       for(i in 1:base::nrow(forecast_df)){
+        fit <- NULL
+        fit <- stats::predict(model$model, newdata = forecast_df[i],
+                              se.fit = TRUE,
+                              interval = "prediction",
+                              level = 0.95)
+
+        forecast_df$yhat[i] <- fit$fit[,"fit"]
+        forecast_df$lower[i] <- fit$fit[,"lwr"]
+        forecast_df$upper[i] <- fit$fit[,"upr"]
+
+
+
+
+
         forecast_df$yhat[i] <- stats::predict(model$model, newdata = forecast_df[i,])
         for(l in model$parameters$lags){
           if(i + l <= base::nrow(forecast_df)){
@@ -591,7 +605,15 @@ forecastML <- function(model, newdata = NULL, h){
         }
       }
     } else {
-      forecast_df$yhat <- stats::predict(model$model, newdata = forecast_df)
+      fit <- NULL
+      fit <- stats::predict(model$model, newdata = forecast_df,
+                            se.fit = TRUE,
+                            interval = "prediction",
+                            level = 0.95)
+
+      forecast_df$yhat <- fit$fit[,"fit"]
+      forecast_df$lower <- fit$fit[,"lwr"]
+      forecast_df$upper <- fit$fit[,"upr"]
     }
   }
 
