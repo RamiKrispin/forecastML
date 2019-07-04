@@ -444,12 +444,16 @@ trainML <- function(input,
 #' -  The timestamp of the first observation must be the consecutive observation of the last observation of the original series
 #' @param h An integer, define the forecast horizon
 
-forecastML <- function(model, newdata = NULL, h){
+forecastML <- function(model, newdata = NULL, h, ci = c(0.95, 0.80)){
 
-  forecast_df <- NULL
+  forecast_df <- df_names <- NULL
   # Error handling
   if(class(model) != "forecastML"){
     stop("The input model is invalid, must be a 'forecastML' object")
+  }
+
+  if(!base::is.numeric(ci) || base::any(ci <=0) || base::any(ci >= 1)){
+    stop("The value of the 'ci' argument is not valid")
   }
 
   if(base::is.null(h)){
@@ -577,46 +581,52 @@ forecastML <- function(model, newdata = NULL, h){
     }
   }
 
-
+  df_names <- base::names(forecast_df)
   if(model$parameters$method == "lm"){
-    forecast_df$yhat <- forecast_df$lower <- forecast_df$upper <- NA
+    forecast_df$yhat <- NA
 
     if(!base::is.null(model$parameters$lags)){
       for(i in 1:base::nrow(forecast_df)){
-        fit <- NULL
-        fit <- stats::predict(model$model, newdata = forecast_df[i],
-                              se.fit = TRUE,
-                              interval = "prediction",
-                              level = 0.95)
+          for(p in base::seq_along(ci)){
+            fit <- NULL
+            fit <- stats::predict(model$model, newdata = forecast_df[i,],
+                                  se.fit = TRUE,
+                                  interval = "prediction",
+                                  level = ci[p])
 
-        forecast_df$yhat[i] <- fit$fit[,"fit"]
-        forecast_df$lower[i] <- fit$fit[,"lwr"]
-        forecast_df$upper[i] <- fit$fit[,"upr"]
-
-
-
-
-
-        forecast_df$yhat[i] <- stats::predict(model$model, newdata = forecast_df[i,])
-        for(l in model$parameters$lags){
-          if(i + l <= base::nrow(forecast_df)){
-            forecast_df[[base::paste("lag_", l, sep = "")]][i + l] <- forecast_df$yhat[i]
+            forecast_df[[base::paste("lower", 100 * ci[p], sep = "")]][i] <- fit$fit[,"lwr"]
+            forecast_df[[base::paste("upper", 100 * ci[p], sep = "")]][i] <- fit$fit[,"upr"]
           }
+      forecast_df$yhat[i] <- fit$fit[,"fit"]
+      for(l in model$parameters$lags){
+        if(i + l <= base::nrow(forecast_df)){
+          forecast_df[[base::paste("lag_", l, sep = "")]][i + l] <- forecast_df$yhat[i]
         }
       }
-    } else {
-      fit <- NULL
-      fit <- stats::predict(model$model, newdata = forecast_df,
-                            se.fit = TRUE,
-                            interval = "prediction",
-                            level = 0.95)
 
-      forecast_df$yhat <- fit$fit[,"fit"]
-      forecast_df$lower <- fit$fit[,"lwr"]
-      forecast_df$upper <- fit$fit[,"upr"]
+      }
+      } else {
+        for(p in base::seq_along(ci)){
+          fit <- NULL
+          fit <- stats::predict(model$model, newdata = forecast_df,
+                                se.fit = TRUE,
+                                interval = "prediction",
+                                level = ci[p])
+
+          forecast_df[[base::paste("lower", 100 * ci[p], sep = "")]] <- fit$fit[,"lwr"]
+          forecast_df[[base::paste("upper", 100 * ci[p], sep = "")]] <- fit$fit[,"upr"]
+        }
+        forecast_df$yhat <- fit$fit[,"fit"]
     }
   }
 
-  return(forecast_df)
+  ci_lower <- 100 * base::sort(ci, decreasing = TRUE)
+  ci_upper <- 100 * base::sort(ci, decreasing = FALSE)
+  output <- base::list(model = model$model,
+                       parameters = base::list(h = h,
+                                               ci = ci),
+                       actual = model$series,
+                       forecast = tsibble::as_tsibble(forecast_df[, c(df_names, base::paste0("lower", ci_lower), "yhat", c(base::paste0("upper", ci_upper)))], index = "index"))
+  return(output)
 
 }
