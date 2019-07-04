@@ -35,7 +35,7 @@ trainML <- function(input,
 
   `%>%` <- magrittr::`%>%`
 
-  freq <- md <- time_stamp <- new_features <- NULL
+  freq <- md <- time_stamp <- new_features <- residuals <- NULL
 
   # Error handling
 
@@ -412,8 +412,9 @@ trainML <- function(input,
 
   }
 
-
+  residuals <- df1[[y]] -  stats::predict(md, newdata = df1)
   output <- list(model = md,
+                 residuals = residuals,
                  parameters = list(y = y,
                                    x = x,
                                    new_features = new_features,
@@ -445,7 +446,7 @@ trainML <- function(input,
 #' @param h An integer, define the forecast horizon
 #' @param pi A vector with numeric values between 0 and 1, define the level of the confidence of the prediction intervals of the forecast. By default calculate the 80% and 95% prediction intervals
 
-forecastML <- function(model, newdata = NULL, h, ci = c(0.95, 0.80)){
+forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
 
   forecast_df <- df_names <- NULL
   # Error handling
@@ -453,8 +454,8 @@ forecastML <- function(model, newdata = NULL, h, ci = c(0.95, 0.80)){
     stop("The input model is invalid, must be a 'forecastML' object")
   }
 
-  if(!base::is.numeric(ci) || base::any(ci <=0) || base::any(ci >= 1)){
-    stop("The value of the 'ci' argument is not valid")
+  if(!base::is.numeric(pi) || base::any(pi <=0) || base::any(pi >= 1)){
+    stop("The value of the 'pi' argument is not valid")
   }
 
   if(base::is.null(h)){
@@ -588,15 +589,15 @@ forecastML <- function(model, newdata = NULL, h, ci = c(0.95, 0.80)){
 
     if(!base::is.null(model$parameters$lags)){
       for(i in 1:base::nrow(forecast_df)){
-          for(p in base::seq_along(ci)){
+          for(p in base::seq_along(pi)){
             fit <- NULL
             fit <- stats::predict(model$model, newdata = forecast_df[i,],
                                   se.fit = TRUE,
                                   interval = "prediction",
-                                  level = ci[p])
+                                  level = pi[p])
 
-            forecast_df[[base::paste("lower", 100 * ci[p], sep = "")]][i] <- fit$fit[,"lwr"]
-            forecast_df[[base::paste("upper", 100 * ci[p], sep = "")]][i] <- fit$fit[,"upr"]
+            forecast_df[[base::paste("lower", 100 * pi[p], sep = "")]][i] <- fit$fit[,"lwr"]
+            forecast_df[[base::paste("upper", 100 * pi[p], sep = "")]][i] <- fit$fit[,"upr"]
           }
       forecast_df$yhat[i] <- fit$fit[,"fit"]
       for(l in model$parameters$lags){
@@ -607,27 +608,27 @@ forecastML <- function(model, newdata = NULL, h, ci = c(0.95, 0.80)){
 
       }
       } else {
-        for(p in base::seq_along(ci)){
+        for(p in base::seq_along(pi)){
           fit <- NULL
           fit <- stats::predict(model$model, newdata = forecast_df,
                                 se.fit = TRUE,
                                 interval = "prediction",
-                                level = ci[p])
+                                level = pi[p])
 
-          forecast_df[[base::paste("lower", 100 * ci[p], sep = "")]] <- fit$fit[,"lwr"]
-          forecast_df[[base::paste("upper", 100 * ci[p], sep = "")]] <- fit$fit[,"upr"]
+          forecast_df[[base::paste("lower", 100 * pi[p], sep = "")]] <- fit$fit[,"lwr"]
+          forecast_df[[base::paste("upper", 100 * pi[p], sep = "")]] <- fit$fit[,"upr"]
         }
         forecast_df$yhat <- fit$fit[,"fit"]
     }
   }
 
-  ci_lower <- 100 * base::sort(ci, decreasing = TRUE)
-  ci_upper <- 100 * base::sort(ci, decreasing = FALSE)
+  pi_lower <- 100 * base::sort(pi, decreasing = TRUE)
+  pi_upper <- 100 * base::sort(pi, decreasing = FALSE)
   output <- base::list(model = model$model,
                        parameters = base::list(h = h,
-                                               ci = ci),
+                                               pi = pi),
                        actual = model$series,
-                       forecast = tsibble::as_tsibble(forecast_df[, c(df_names, base::paste0("lower", ci_lower), "yhat", c(base::paste0("upper", ci_upper)))], index = "index"))
+                       forecast = tsibble::as_tsibble(forecast_df[, c(df_names, base::paste0("lower", pi_lower), "yhat", c(base::paste0("upper", pi_upper)))], index = "index"))
   return(output)
 
 }
