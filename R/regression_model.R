@@ -443,6 +443,7 @@ trainML <- function(input,
 #'
 #' -  The timestamp of the first observation must be the consecutive observation of the last observation of the original series
 #' @param h An integer, define the forecast horizon
+#' @param pi A vector with numeric values between 0 and 1, define the level of the confidence of the prediction intervals of the forecast. By default calculate the 80% and 95% prediction intervals
 
 forecastML <- function(model, newdata = NULL, h, ci = c(0.95, 0.80)){
 
