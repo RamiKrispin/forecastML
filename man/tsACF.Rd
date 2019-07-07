@@ -5,7 +5,7 @@
 \title{Autocorrelation Function}
 \usage{
 tsACF(input, var = NULL, max.lag = NULL, ci = 0.95, na.rm = FALSE,
-  width = 0.01)
+  width = 0.01, plot = TRUE)
 }
 \arguments{
 \item{input}{A tsibble object}
@@ -14,12 +14,14 @@ tsACF(input, var = NULL, max.lag = NULL, ci = 0.95, na.rm = FALSE,
 
 \item{max.lag}{An integer, defines the maximum number of lags to be used}
 
-\item{ci}{A numeric between 0 and 1, define the XXX}
+\item{ci}{A numeric between 0 and 1, defines the coverage probablility for confidence interval (by default set to 0.95)}
 
 \item{na.rm}{A boolean, if set to TRUE will ignore missing values}
 
 \item{width}{A numeric, defines the plot's autocorrelation lines width}
+
+\item{plot}{A boolean, if set to TRUE will plot the acf results}
 }
 \description{
-Autocorrelation Function
+The tsACF function calculate the estimated autocorrelation between a series and its past lags
 }
