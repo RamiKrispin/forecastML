@@ -4,7 +4,8 @@
 \alias{tsACF}
 \title{Autocorrelation Function}
 \usage{
-tsACF(input, var = NULL, max.lag = NULL, ci = 0.95, na.rm = FALSE)
+tsACF(input, var = NULL, max.lag = NULL, ci = 0.95, na.rm = FALSE,
+  width = 0.01)
 }
 \arguments{
 \item{input}{A tsibble object}
@@ -12,6 +13,12 @@ tsACF(input, var = NULL, max.lag = NULL, ci = 0.95, na.rm = FALSE)
 \item{var}{A character, optional, defines the variables names to calculate the ACF when having a multuple time series object}
 
 \item{max.lag}{An integer, defines the maximum number of lags to be used}
+
+\item{ci}{A numeric between 0 and 1, define the XXX}
+
+\item{na.rm}{A boolean, if set to TRUE will ignore missing values}
+
+\item{width}{A numeric, defines the plot's autocorrelation lines width}
 }
 \description{
 Autocorrelation Function
