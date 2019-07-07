@@ -95,7 +95,9 @@ tsACF <- function(input,
 
     output[[var[i]]]$acf <- acf
     if(plot){
-    output[[var[i]]]$plot <- p
+      print(p)
+      output[[var[i]]]$plot <- p
+      base::invisible(output)
     }
 
   }
