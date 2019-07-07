@@ -3,8 +3,11 @@
 #' @param input A tsibble object
 #' @param var A character, optional, defines the variables names to calculate the ACF when having a multuple time series object
 #' @param max.lag An integer, defines the maximum number of lags to be used
+#' @param ci A numeric between 0 and 1, define the XXX
+#' @param na.rm A boolean, if set to TRUE will ignore missing values
+#' @param width A numeric, defines the plot's autocorrelation lines width
 
-tsACF <- function(input, var = NULL, max.lag = NULL, ci = 0.95, na.rm = FALSE){
+tsACF <- function(input, var = NULL, max.lag = NULL, ci = 0.95, na.rm = FALSE, width = 0.01){
   `%>%` <- magrittr::`%>%`
   # Error handling
   if(!base::is.logical(na.rm)){
@@ -67,7 +70,7 @@ tsACF <- function(input, var = NULL, max.lag = NULL, ci = 0.95, na.rm = FALSE){
                              ci_upper = ci_value)
 
     p <- plotly::plot_ly(data = acf) %>%
-      plotly::add_trace(x = ~ lag, y = ~ acf, type = "bar", width = 0.01, showlegend = FALSE) %>%
+      plotly::add_trace(x = ~ lag, y = ~ acf, type = "bar", width = width, showlegend = FALSE) %>%
       plotly::add_lines(x = ~ lag, y = ~ ci_upper, line = list(dash = "dash", color = "red"), showlegend = FALSE) %>%
       plotly::add_lines(x = ~ lag, y = ~ ci_lower, line = list(dash = "dash", color = "red"), showlegend = FALSE) %>%
       plotly::layout(yaxis = list(title = "ACF"),
