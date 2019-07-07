@@ -8,8 +8,7 @@
 #' @param width A numeric, defines the plot's autocorrelation lines width
 #' @param plot A boolean, if set to TRUE will plot the acf results
 #' @description The tsACF function calculate the estimated autocorrelation between a series and its past lags
-#' @example
-#'
+
 
 tsACF <- function(input,
                   var = NULL,
