@@ -3,15 +3,29 @@
 #' @param input A tsibble object
 #' @param var A character, optional, defines the variables names to calculate the ACF when having a multuple time series object
 #' @param max.lag An integer, defines the maximum number of lags to be used
-#' @param ci A numeric between 0 and 1, define the XXX
+#' @param ci A numeric between 0 and 1, defines the coverage probablility for confidence interval (by default set to 0.95)
 #' @param na.rm A boolean, if set to TRUE will ignore missing values
 #' @param width A numeric, defines the plot's autocorrelation lines width
+#' @param plot A boolean, if set to TRUE will plot the acf results
+#' @description The tsACF function calculate the estimated autocorrelation between a series and its past lags
+#' @example
+#'
 
-tsACF <- function(input, var = NULL, max.lag = NULL, ci = 0.95, na.rm = FALSE, width = 0.01){
+tsACF <- function(input,
+                  var = NULL,
+                  max.lag = NULL,
+                  ci = 0.95,
+                  na.rm = FALSE,
+                  width = 0.01,
+                  plot = TRUE){
   `%>%` <- magrittr::`%>%`
   # Error handling
   if(!base::is.logical(na.rm)){
-    stop("The the 'na.rm' argument must be boolean")
+    stop("The 'na.rm' argument must be boolean")
+  }
+
+  if(!base::is.logical(plot)){
+    stop("The 'plot' argument must be boolean")
   }
 
   if(!tsibble::is.tsibble(input)){
@@ -81,9 +95,9 @@ tsACF <- function(input, var = NULL, max.lag = NULL, ci = 0.95, na.rm = FALSE, w
 
 
     output[[var[i]]]$acf <- acf
+    if(plot){
     output[[var[i]]]$plot <- p
-
-
+    }
 
   }
 
