@@ -174,7 +174,6 @@ trainML <- function(input,
           new_features <- c(new_features, "quarter")
         }
 
-        warning("For monthly frequency only 'month' or 'quarter' seasonal component could be used with the 'seasonal' argument")
       } else {stop("The seasonal component is not valid")}
 
       # Case series frequency is weekly
@@ -203,8 +202,6 @@ trainML <- function(input,
           df$quarter <- lubridate::quarter(df[[time_stamp]]) %>% base::factor(ordered = FALSE)
           new_features <- c(new_features, "quarter")
         }
-
-        warning("For weekly frequency only 'week', 'month', or 'quarter' seasonal component could be used with the 'seasonal' argument")
       } else {stop("The seasonal component is not valid")}
 
       # Case series frequency is daily
@@ -250,7 +247,6 @@ trainML <- function(input,
           new_features <- c(new_features, "quarter")
         }
 
-        warning("For daily frequency only 'wday', 'yday', 'week', 'month', or 'quarter' seasonal component could be used with the 'seasonal' argument")
       } else {stop("The seasonal component is not valid")}
 
       # Case series frequency is hourly
@@ -298,7 +294,6 @@ trainML <- function(input,
           new_features <- c(new_features, "quarter")
         }
 
-        warning("For daily frequency only 'hour', 'wday', 'yday', 'week', 'month', or 'quarter' seasonal component could be used with the 'seasonal' argument")
       } else {stop("The seasonal component is not valid")}
     } else if(freq$unit == "minute"){
       if(base::length(seasonal) == 1 && seasonal == "minute"){
@@ -352,7 +347,6 @@ trainML <- function(input,
           new_features <- c(new_features, "quarter")
         }
 
-        warning("For daily frequency only 'hour', 'wday', 'yday', 'week', 'month', or 'quarter' seasonal component could be used with the 'seasonal' argument")
       } else {stop("The seasonal component is not valid")}
     }
   }
