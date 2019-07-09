@@ -427,7 +427,7 @@ trainML <- function(input,
                                    frequency = freq),
                  series = df)
 
-  final_output <- base::structure(output, class = "forecastML")
+  final_output <- base::structure(output, class = "trainML")
 
   return(final_output)
 
@@ -450,8 +450,8 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
 
   forecast_df <- df_names <- NULL
   # Error handling
-  if(class(model) != "forecastML"){
-    stop("The input model is invalid, must be a 'forecastML' object")
+  if(class(model) != "trainML"){
+    stop("The input model is invalid, must be a 'trainML' object")
   }
 
   if(!base::is.numeric(pi) || base::any(pi <=0) || base::any(pi >= 1)){
@@ -629,6 +629,8 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
                                                pi = pi),
                        actual = model$series,
                        forecast = tsibble::as_tsibble(forecast_df[, c(df_names, base::paste0("lower", pi_lower), "yhat", c(base::paste0("upper", pi_upper)))], index = "index"))
-  return(output)
+
+  final_output <- base::structure(output, class = "forecastML")
+  return(final_output)
 
 }
