@@ -1,3 +1,7 @@
+#' Plotting the residuals
+#' @export
+#' @param model A trainML object
+
 plot_res <- function(model){
   p1 <- plotly::plot_ly(x = model$series[[model$parameters$index]],
                         y = model$series[[model$parameters$y]],
