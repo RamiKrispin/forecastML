@@ -405,14 +405,17 @@ trainML <- function(input,
     )
 
   }
-
+  fitted <- base::data.frame(index = df1[[base::attributes(df1)$index2]],
+                             stats::predict(md, newdata = df1))
   residuals <- base::data.frame(index = df1[[base::attributes(df1)$index2]],
-                                residuals =  df1[[y]] -  stats::predict(md, newdata = df1)) %>%
+                                residuals =  df1[[y]] -  fitted) %>%
     tsibble::as_tsibble(index = "index")
   output <- list(model = md,
+                 fitted = fitted,
                  residuals = residuals,
                  parameters = list(y = y,
                                    x = x,
+                                   index = time_stamp,
                                    new_features = new_features,
                                    seasonal = seasonal,
                                    trend = trend,
