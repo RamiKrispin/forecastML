@@ -83,9 +83,10 @@ tsACF <- function(input,
                              ci_upper = ci_value)
 
     p <- plotly::plot_ly(data = acf) %>%
-      plotly::add_trace(x = ~ lag, y = ~ acf, type = "bar", width = width, showlegend = FALSE) %>%
-      plotly::add_lines(x = ~ lag, y = ~ ci_upper, line = list(dash = "dash", color = "red"), showlegend = FALSE) %>%
-      plotly::add_lines(x = ~ lag, y = ~ ci_lower, line = list(dash = "dash", color = "red"), showlegend = FALSE) %>%
+      plotly::add_trace(x = ~ lag, y = ~ acf, type = "bar", width = width, showlegend = FALSE,
+                        marker = list(color = "#00526d", line = list(color = "#00526d"))) %>%
+      plotly::add_lines(x = ~ lag, y = ~ ci_upper, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE) %>%
+      plotly::add_lines(x = ~ lag, y = ~ ci_lower, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE) %>%
       plotly::layout(yaxis = list(title = "ACF"),
                      xaxis = list(title = "Lag"),
                      title = base::paste("Autocorrelation - ", var[i], sep = ""))
