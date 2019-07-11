@@ -4,7 +4,7 @@
 \alias{plot_res}
 \title{Plotting the residuals}
 \usage{
-plot_res(model)
+plot_res(model, na.rm = FALSE)
 }
 \arguments{
 \item{model}{A trainML object}
