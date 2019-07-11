@@ -22,3 +22,5 @@ Suggests:
     devtools
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
+URL: https://github.com/RamiKrispin/forecastML
+BugReports: https://github.com/RamiKrispin/forecastML/issues
