@@ -3,6 +3,8 @@ Type: Package
 Title: Time Series Forecasting with Linear Regression and Machine Learing Methods
 Version: 0.1.0.9000
 Author: Rami Krispin
+Authors@R: person("Rami", "Krispin", email = "rami.krispin@gmail.com",
+  role = c("aut", "cre"))
 Maintainer: Rami Krispin <rami.krispin@gmail.com>
 Description: Using linear regression and machine learning models to forecast complex time series data (multiple seasonality, regressor, etc.)
 License: MIT
