@@ -470,51 +470,54 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
     stop("The input model was trained with regressors, the 'newdata' argument must align to the 'x' argument of the trained model")
   } else if(!base::is.null(model$parameters$x) && !base::all(model$parameters$x %in% base::names(newdata))){
     stop("The columns names of the 'newdata' input is not aligned with the variables names that was used on the training process")
-  }
-
-  if(!base::is.null(newdata)){
-    if(base::nrow(newdata) != h){
+  } else if(!base::is.null(model$parameters$x) && !base::is.null(newdata) && base::nrow(newdata) != h){
       warning("The length of the input data ('newdata') is not aligned with the forecast horizon ('h'). Setting the forecast horizon as the number of rows of the input data.")
       h <- base::nrow(newdata)
     }
-  }
 
   # Creating new features for the forecast data frame
   if(model$parameters$frequency$unit == "year"){
     start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + model$parameters$frequency$value
     forecast_df <- base::data.frame(index = base::seq(from = start_date,
                                                       by = model$parameters$frequency$value,
-                                                      length.out = h))
+                                                      length.out = h)) %>%
+      stats::setNames(model$parameters$index)
   } else if(model$parameters$frequency$unit == "quarter"){
     start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + lubridate::quarter(model$parameters$frequency$value)
     forecast_df <- base::data.frame(index = base::seq(from = start_date,
                                                       by = model$parameters$frequency$value,
-                                                      length.out = h))
+                                                      length.out = h)) %>%
+      stats::setNames(model$parameters$index)
   } else if(model$parameters$frequency$unit == "month"){
     start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + lubridate::month(model$parameters$frequency$value)
     forecast_df <- base::data.frame(index = base::seq(from = start_date,
                                                       by = model$parameters$frequency$value,
-                                                      length.out = h))
+                                                      length.out = h)) %>%
+      stats::setNames(model$parameters$index)
   } else if(model$parameters$frequency$unit == "week"){
     start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + model$parameters$frequency$value
     forecast_df <- base::data.frame(index = base::seq(from = start_date,
                                                       by = model$parameters$frequency$value,
-                                                      length.out = h))
+                                                      length.out = h)) %>%
+      stats::setNames(model$parameters$index)
   } else if(model$parameters$frequency$unit == "day"){
     start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + lubridate::days(model$parameters$frequency$value)
     forecast_df <- base::data.frame(index = base::seq(from = start_date,
                                                       by = model$parameters$frequency$value,
-                                                      length.out = h))
+                                                      length.out = h)) %>%
+      stats::setNames(model$parameters$index)
   } else if(model$parameters$frequency$unit == "hour"){
     start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + lubridate::hours(model$parameters$frequency$value)
     forecast_df <- base::data.frame(index = base::seq.POSIXt(from = start_date,
                                                              by = model$parameters$frequency$unit,
-                                                             length.out = h))
+                                                             length.out = h)) %>%
+      stats::setNames(model$parameters$index)
   } else if(model$parameters$frequency$unit == "minute"){
     start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + lubridate::minutes(model$parameters$frequency$value)
     forecast_df <- base::data.frame(index = base::seq.POSIXt(from = start_date,
                                                              by = base::paste(model$parameters$frequency$value ,"min"),
-                                                             length.out = h))
+                                                             length.out = h)) %>%
+      stats::setNames(model$parameters$index)
   }
 
 
@@ -524,32 +527,32 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
 
   if(!base::is.null(seasonal)){
     if("minute" %in% seasonal){
-      forecast_df$minute <- (lubridate::hour(forecast_df[["index"]]) * 2 + (lubridate::minute(forecast_df[["index"]]) + freq$value )/ freq$value) %>%
+      forecast_df$minute <- (lubridate::hour(forecast_df[[model$parameters$index]]) * 2 + (lubridate::minute(forecast_df[[model$parameters$index]]) + freq$value )/ freq$value) %>%
         base::factor(ordered = FALSE)
     }
 
     if("hour" %in% seasonal){
-      forecast_df$hour <- (lubridate::hour(forecast_df[["index"]]) + 1) %>% base::factor(ordered = FALSE)
+      forecast_df$hour <- (lubridate::hour(forecast_df[[model$parameters$index]]) + 1) %>% base::factor(ordered = FALSE)
     }
 
     if("wday" %in% seasonal){
-      forecast_df$wday <- lubridate::wday(forecast_df[["index"]], label = TRUE) %>% base::factor(ordered = FALSE)
+      forecast_df$wday <- lubridate::wday(forecast_df[[model$parameters$index]], label = TRUE) %>% base::factor(ordered = FALSE)
     }
 
     if("yday" %in% seasonal){
-      forecast_df$yday <- lubridate::yday(forecast_df[["index"]]) %>% base::factor(ordered = FALSE)
+      forecast_df$yday <- lubridate::yday(forecast_df[[model$parameters$index]]) %>% base::factor(ordered = FALSE)
     }
 
     if("week" %in% seasonal){
-      forecast_df$week <- lubridate::week(forecast_df[["index"]]) %>% base::factor(ordered = FALSE)
+      forecast_df$week <- lubridate::week(forecast_df[[model$parameters$index]]) %>% base::factor(ordered = FALSE)
     }
 
     if("month" %in% seasonal){
-      forecast_df$month <- lubridate::month(forecast_df[["index"]], label = TRUE) %>% base::factor(ordered = FALSE)
+      forecast_df$month <- lubridate::month(forecast_df[[model$parameters$index]], label = TRUE) %>% base::factor(ordered = FALSE)
     }
 
     if("quarter" %in% seasonal){
-      forecast_df$quarter <- lubridate::quarter(forecast_df[["index"]]) %>% base::factor(ordered = FALSE)
+      forecast_df$quarter <- lubridate::quarter(forecast_df[[model$parameters$index]]) %>% base::factor(ordered = FALSE)
     }
 
   }
@@ -584,6 +587,11 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
   }
 
   df_names <- base::names(forecast_df)
+
+  if(!base::is.null(model$parameters$x) && !base::is.null(newdata)){
+  forecast_df <- forecast_df %>% dplyr::left_join(newdata)
+  }
+
   if(model$parameters$method == "lm"){
     forecast_df$yhat <- NA
 
@@ -628,7 +636,7 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
                        parameters = base::list(h = h,
                                                pi = pi),
                        actual = model$series,
-                       forecast = tsibble::as_tsibble(forecast_df[, c(df_names, base::paste0("lower", pi_lower), "yhat", c(base::paste0("upper", pi_upper)))], index = "index"))
+                       forecast = tsibble::as_tsibble(forecast_df[, c(df_names, base::paste0("lower", pi_lower), "yhat", c(base::paste0("upper", pi_upper)))], index = model$parameters$index))
 
   final_output <- base::structure(output, class = "forecastML")
   return(final_output)
