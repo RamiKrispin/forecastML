@@ -4,10 +4,14 @@
 \alias{plot_res}
 \title{Plotting the residuals}
 \usage{
-plot_res(model, na.rm = FALSE)
+plot_res(model, na.rm = FALSE, margin = 0.04)
 }
 \arguments{
 \item{model}{A trainML object}
+
+\item{na.rm}{A boolean, if TRUE will ignore missing values, by default set to FALSE}
+
+\item{margin}{A numeric, define the margin space between the subplot components}
 }
 \description{
 Plotting the residuals
