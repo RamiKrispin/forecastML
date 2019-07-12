@@ -589,7 +589,7 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
   df_names <- base::names(forecast_df)
 
   if(!base::is.null(model$parameters$x) && !base::is.null(newdata)){
-  forecast_df <- forecast_df %>% dplyr::left_join(newdata)
+  forecast_df <- forecast_df %>% dplyr::left_join(newdata, by = model$parameters$index)
   }
 
   if(model$parameters$method == "lm"){
