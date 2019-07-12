@@ -32,11 +32,14 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
 
   p4 <- plotly::plot_ly(x = model$residuals$residuals, type = "histogram",
                         marker = list(color = 'rgb(227, 119, 194)'),
-                        name = "Residauls Dist.")
+                        name = "Residauls Dist.") %>%
+    plotly::layout(xaxis = list(title = "Residuals Distribution"),
+                   yaxis = list(title = "Count"))
 
   p_output <- plotly::subplot(plotly::subplot(p1, p2, nrows = 2, shareX = T),
-                  plotly::subplot(p3$residuals$plot, p4, nrows = 1, titleY = T ), nrows = 2, titleY = T, titleX = T, margin = 0.04) %>%
-    plotly::hide_legend()
+                  plotly::subplot(p3$residuals$plot, p4, nrows = 1, titleY = T, titleX = T ), nrows = 2, titleY = T, titleX = T, margin = 0.04) %>%
+    plotly::hide_legend() %>%
+    plotly::layout(title = "Residuals Analysis")
   return(p_output)
 }
 
