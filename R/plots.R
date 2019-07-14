@@ -28,7 +28,7 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
   if(base::any(base::is.na(model$residuals)) && na.rm == FALSE){
     stop("The model residuals has missing values, please either check the residuals or set na.rm = TRUE")
   }
-  p3 <- forecastML::tsACF(model$residuals, na.rm = na.rm)
+  p3 <- forecastML::tsACF(model$residuals, na.rm = na.rm, plot = FALSE)
 
   p4 <- plotly::plot_ly(x = model$residuals$residuals, type = "histogram",
                         marker = list(color = 'rgb(227, 119, 194)'),
@@ -37,7 +37,8 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
                    yaxis = list(title = "Count"))
 
   p_output <- plotly::subplot(plotly::subplot(p1, p2, nrows = 2, shareX = T),
-                  plotly::subplot(p3$residuals$plot, p4, nrows = 1, titleY = T, titleX = T ), nrows = 2, titleY = T, titleX = T, margin = margin) %>%
+                  plotly::subplot(p3$residuals$plot, p4, nrows = 1, titleY = T, titleX = T ), nrows = 2, titleY = T, titleX = T, margin = margin,
+                  heights = c(0.6, 0.4)) %>%
     plotly::hide_legend() %>%
     plotly::layout(title = "Residuals Analysis")
   return(p_output)
