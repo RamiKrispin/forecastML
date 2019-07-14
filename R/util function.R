@@ -126,7 +126,7 @@ tsACF <- function(input,
 
   if(plot){
     if(base::length(var) > 1){
-      base::print(plotly::subplot(output[names(output)]  %>% purrr::map("plot"), nrows = base::ceiling(base::length(var) / 2),
+      base::print(plotly::subplot(output[names(output)]  %>% purrr::map("plot"), nrows = base::ceiling(base::length(var)),
                                   titleY = TRUE, titleX = TRUE, shareY = TRUE, shareX = TRUE) %>%
                     plotly::layout(title = "Autocorrelation Plot"))
     } else if(base::length(var) == 1){
