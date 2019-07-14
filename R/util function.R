@@ -98,16 +98,19 @@ tsACF <- function(input,
     if(plot){
       print(p)
       output[[var[i]]]$plot <- p
-      base::invisible(output)
+      # base::invisible(output)
     } else{
       output[[var[i]]]$plot <- p
-      base::invisible(output)
+      #base::invisible(output)
     }
 
   }
 
-
+  if(plot){
+    return(base::invisible(output))
+  } else {
   return(output)
+  }
   }
 
 
