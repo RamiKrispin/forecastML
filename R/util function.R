@@ -84,18 +84,19 @@ tsACF <- function(input,
     if(base::length(var) == 1){
     p <- plotly::plot_ly(data = acf) %>%
       plotly::add_trace(x = ~ lag, y = ~ acf, type = "bar", width = width, showlegend = FALSE,
-                        marker = list(color = "#00526d", line = list(color = "#00526d"))) %>%
-      plotly::add_lines(x = ~ lag, y = ~ ci_upper, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE) %>%
-      plotly::add_lines(x = ~ lag, y = ~ ci_lower, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE) %>%
+                        marker = list(color = "#00526d", line = list(color = "#00526d")), name = "Autocorrelation") %>%
+      plotly::add_lines(x = ~ lag, y = ~ ci_upper, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE, name = "CI Upper") %>%
+      plotly::add_lines(x = ~ lag, y = ~ ci_lower, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE, name = "CI Lower") %>%
       plotly::layout(yaxis = list(title = "ACF"),
                      xaxis = list(title = "Lag"),
-                     title = base::paste("Autocorrelation - ", var[i], sep = ""))
+                     title = base::paste("Autocorrelation - ", var[i], sep = ""),
+                     hovermode = "compare")
     } else if(base::length(var) > 1){
       p <- plotly::plot_ly(data = acf) %>%
         plotly::add_trace(x = ~ lag, y = ~ acf, type = "bar", width = width, showlegend = FALSE,
-                          marker = list(color = "#00526d", line = list(color = "#00526d"))) %>%
-        plotly::add_lines(x = ~ lag, y = ~ ci_upper, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE) %>%
-        plotly::add_lines(x = ~ lag, y = ~ ci_lower, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE) %>%
+                          marker = list(color = "#00526d", line = list(color = "#00526d")), name = "Autocorrelation") %>%
+        plotly::add_lines(x = ~ lag, y = ~ ci_upper, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE, name = "CI Upper") %>%
+        plotly::add_lines(x = ~ lag, y = ~ ci_lower, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE, name = "CI Lower") %>%
         plotly::layout(yaxis = list(title = "ACF"),
                        xaxis = list(title = "Lag"),
                        annotations = list(text = var[i],
@@ -105,7 +106,8 @@ tsACF <- function(input,
                                           xanchor = "center",
                                           align = "center",
                                           x = max.lag / 2,
-                                          y = 0.9))
+                                          y = 0.9),
+                       hovermode = "compare")
     }
 
 
