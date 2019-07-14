@@ -81,7 +81,7 @@ tsACF <- function(input,
                              acf = s,
                              ci_lower = - ci_value,
                              ci_upper = ci_value)
-
+    if(base::length(var) == 1){
     p <- plotly::plot_ly(data = acf) %>%
       plotly::add_trace(x = ~ lag, y = ~ acf, type = "bar", width = width, showlegend = FALSE,
                         marker = list(color = "#00526d", line = list(color = "#00526d"))) %>%
@@ -90,7 +90,23 @@ tsACF <- function(input,
       plotly::layout(yaxis = list(title = "ACF"),
                      xaxis = list(title = "Lag"),
                      title = base::paste("Autocorrelation - ", var[i], sep = ""))
-
+    } else if(base::length(var) > 1){
+      p <- plotly::plot_ly(data = acf) %>%
+        plotly::add_trace(x = ~ lag, y = ~ acf, type = "bar", width = width, showlegend = FALSE,
+                          marker = list(color = "#00526d", line = list(color = "#00526d"))) %>%
+        plotly::add_lines(x = ~ lag, y = ~ ci_upper, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE) %>%
+        plotly::add_lines(x = ~ lag, y = ~ ci_lower, line = list(dash = "dash", color = "red", width = 1), showlegend = FALSE) %>%
+        plotly::layout(yaxis = list(title = "ACF"),
+                       xaxis = list(title = "Lag"),
+                       annotations = list(text = var[i],
+                                          showarrow = FALSE,
+                                          yref = "paper",
+                                          yanchor = "bottom",
+                                          xanchor = "center",
+                                          align = "center",
+                                          x = 0.5,
+                                          y = 0.9))
+    }
 
 
 
@@ -107,6 +123,12 @@ tsACF <- function(input,
   }
 
   if(plot){
+    if(base::length(var) > 1){
+      base::print(plotly::subplot(output[names(output)]  %>% purrr::map("plot"), nrows = base::ceiling(base::length(var) / 2)) %>%
+                    plotly::layout(title = "Autocorrelation Plot"))
+    } else if(base::length(var) == 1){
+      base::print(output[[var]]$plot)
+    }
     return(base::invisible(output))
   } else {
   return(output)
