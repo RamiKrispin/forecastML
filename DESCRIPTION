@@ -17,6 +17,7 @@ Imports:
   lubridate (>= 1.6.0),
   magrittr (>= 1.5),
   plotly (>= 4.9),
+  purrr (>= 0.3.2),
   tsibble(>= 0.8.2)
 Suggests:
     knitr,
