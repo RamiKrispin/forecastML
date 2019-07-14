@@ -99,6 +99,9 @@ tsACF <- function(input,
       print(p)
       output[[var[i]]]$plot <- p
       base::invisible(output)
+    } else{
+      output[[var[i]]]$plot <- p
+      base::invisible(output)
     }
 
   }
