@@ -123,7 +123,15 @@ trainML <- function(input,
   if(!base::is.null(events) && !base::is.list(events)){
     stop("The 'events' argument is not valid, please use list")
   } else if(!base::is.null(events) && base::is.list(events)){
-
+    for(n in base::names(events)){
+      if(!base::any(freq$class %in% base::class(events[[n]]))){
+        stop("The date/time object of the 'events' argument does not align with the ones of the input object")
+      } else {
+        df[n] <- 0
+        df[base::which(df[,time_stamp , drop = TRUE] %in% events[[n]]), n] <- 1
+        new_features <- c(new_features, n)
+      }
+    }
   }
   # Scaling the series
   if(!base::is.null(scale)){
