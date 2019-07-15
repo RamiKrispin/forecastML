@@ -13,6 +13,8 @@
 #' "log" - a boolean variable, if set to TRUE defines a log transformation for the trend.
 #' By default, the trend argument is set to a linear trend (i.e., power = 1)
 #' @param lags A positive integer, defines the series lags to be used as input to the model (equivalent to AR process)
+#' @param events A list, an optional, create hot encoding variables based on date/time objects,
+#' where the date/time objects must align with the input object index class (please see details for more information)
 #' @param method A character, defines the regression method to be used, currently only "lm" method is available
 #' @param method_arg A list, defines the argument of the selected method
 #' @param scale A character, scaling options of the series, methods available -
@@ -434,6 +436,7 @@ trainML <- function(input,
                                    seasonal = seasonal,
                                    trend = trend,
                                    lags = lags,
+                                   events = events,
                                    method = method,
                                    method_arg = method_arg,
                                    scale = scale,

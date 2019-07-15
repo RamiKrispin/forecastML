@@ -6,8 +6,8 @@
 \usage{
 trainML(input, y = NULL, x = NULL, seasonal = NULL,
   trend = list(linear = TRUE, exponential = FALSE, log = FALSE, power =
-  FALSE), lags = NULL, method = "lm", method_arg = list(step = FALSE,
-  direction = "both"), scale = NULL)
+  FALSE), lags = NULL, events = NULL, method = "lm",
+  method_arg = list(step = FALSE, direction = "both"), scale = NULL)
 }
 \arguments{
 \item{input}{A tsibble or ts object}
@@ -28,6 +28,9 @@ monthly, weekly, day of the year, day of the week, and hourly respectively}
 By default, the trend argument is set to a linear trend (i.e., power = 1)}
 
 \item{lags}{A positive integer, defines the series lags to be used as input to the model (equivalent to AR process)}
+
+\item{events}{A list, an optional, create hot encoding variables based on date/time objects,
+where the date/time objects must align with the input object index class (please see details for more information)}
 
 \item{method}{A character, defines the regression method to be used, currently only "lm" method is available}
 
