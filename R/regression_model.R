@@ -492,6 +492,8 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
       h <- base::nrow(newdata)
     }
 
+
+
   # Creating new features for the forecast data frame
   if(model$parameters$frequency$unit == "year"){
     start_date <- base::max(model$series[[base::attributes(model$series)$index2]]) + model$parameters$frequency$value
@@ -537,7 +539,15 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
       stats::setNames(model$parameters$index)
   }
 
+  if(!base::is.null(model$parameters$events)){
+    events <- NULL
+    events <- model$parameters$events
+    for(n in base::names(events)){
+      forecast_df[n] <- 0
+      forecast_df[base::which(forecast_df[,model$parameters$index , drop = TRUE] %in% events[[n]]), n] <- 1
 
+    }
+  }
 
   # Setting the seasonal arguments
   seasonal <- model$parameters$seasonal
