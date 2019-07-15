@@ -29,6 +29,7 @@ trainML <- function(input,
                    seasonal = NULL,
                    trend = list(linear = TRUE, exponential = FALSE, log = FALSE, power = FALSE),
                    lags = NULL,
+                   events = NULL,
                    method =  "lm",
                    method_arg = list(step = FALSE, direction = "both"),
                    scale = NULL){
@@ -50,7 +51,6 @@ trainML <- function(input,
     } else if(!base::is.logical(trend$linear)){
       stop("The 'linear' argument of the trend must be either TRUE or FALSE")
     }
-
 
     if(!"exponential" %in% base::names(trend)){
       trend$exponential <- FALSE
@@ -76,7 +76,6 @@ trainML <- function(input,
               "To avoid redundancy in the variables, setting 'linear' to FALSE")
     }
   }
-
 
 
   # Check if the x variables are in the input obj
@@ -117,9 +116,15 @@ trainML <- function(input,
 
   freq <- base::list(unit = base::names(base::which(purrr::map(tsibble::interval(df), ~.x) > 0)),
                      value = tsibble::interval(df)[which(tsibble::interval(df) != 0)] %>% base::as.numeric(),
-                     frequency = stats::frequency(df))
+                     frequency = stats::frequency(df),
+                     class = base::class(df[,time_stamp, drop = TRUE]))
 
+  # Checking the event argument
+  if(!base::is.null(events) && !base::is.list(events)){
+    stop("The 'events' argument is not valid, please use list")
+  } else if(!base::is.null(events) && base::is.list(events)){
 
+  }
   # Scaling the series
   if(!base::is.null(scale)){
     if(scale == "log"){
