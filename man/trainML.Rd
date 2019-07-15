@@ -30,7 +30,7 @@ By default, the trend argument is set to a linear trend (i.e., power = 1)}
 \item{lags}{A positive integer, defines the series lags to be used as input to the model (equivalent to AR process)}
 
 \item{events}{A list, an optional, create hot encoding variables based on date/time objects,
-where the date/time objects must align with the input object index class (please see details for more information)}
+where the date/time objects must align with the input object index class (may not work when the input object is 'ts'). For more information please see details}
 
 \item{method}{A character, defines the regression method to be used, currently only "lm" method is available}
 
@@ -42,4 +42,7 @@ If set to NULL (default), no transformation will occur}
 }
 \description{
 Train a forecasting model with regression models
+}
+\details{
+XXXXXXXXXXX TBD XXXXXXXXXXXXXXXXXXX
 }

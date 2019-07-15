@@ -14,13 +14,14 @@
 #' By default, the trend argument is set to a linear trend (i.e., power = 1)
 #' @param lags A positive integer, defines the series lags to be used as input to the model (equivalent to AR process)
 #' @param events A list, an optional, create hot encoding variables based on date/time objects,
-#' where the date/time objects must align with the input object index class (please see details for more information)
+#' where the date/time objects must align with the input object index class (may not work when the input object is 'ts'). For more information please see details
 #' @param method A character, defines the regression method to be used, currently only "lm" method is available
 #' @param method_arg A list, defines the argument of the selected method
 #' @param scale A character, scaling options of the series, methods available -
 #' c("log", "normal", "standard") for log transformation, normalization, or standardization of the series, respectively.
 #' If set to NULL (default), no transformation will occur
 #' @description Train a forecasting model with regression models
+#' @details XXXXXXXXXXX TBD XXXXXXXXXXXXXXXXXXX
 #' @examples
 
 
