@@ -112,8 +112,8 @@
 
     <pre class="usage"><span class='fu'>trainML</span>(<span class='no'>input</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>seasonal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>trend</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>linear</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>exponential</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>log</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>power</span> <span class='kw'>=</span>
-  <span class='fl'>FALSE</span>), <span class='kw'>lags</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"lm"</span>, <span class='kw'>method_arg</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>step</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"both"</span>), <span class='kw'>scale</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+  <span class='fl'>FALSE</span>), <span class='kw'>lags</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>events</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"lm"</span>,
+  <span class='kw'>method_arg</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>step</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"both"</span>), <span class='kw'>scale</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,6 +150,11 @@ By default, the trend argument is set to a linear trend (i.e., power = 1)</p></t
       <td><p>A positive integer, defines the series lags to be used as input to the model (equivalent to AR process)</p></td>
     </tr>
     <tr>
+      <th>events</th>
+      <td><p>A list, an optional, create hot encoding variables based on date/time objects,
+where the date/time objects must align with the input object index class (may not work when the input object is 'ts'). For more information please see details</p></td>
+    </tr>
+    <tr>
       <th>method</th>
       <td><p>A character, defines the regression method to be used, currently only "lm" method is available</p></td>
     </tr>
@@ -165,13 +170,19 @@ If set to NULL (default), no transformation will occur</p></td>
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>XXXXXXXXXXX TBD XXXXXXXXXXXXXXXXXXX</p>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#details">Details</a></li>
+          </ul>
 
   </div>
 </div>
