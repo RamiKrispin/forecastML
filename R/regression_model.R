@@ -661,7 +661,10 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
   pi_upper <- 100 * base::sort(pi, decreasing = FALSE)
   output <- base::list(model = model$model,
                        parameters = base::list(h = h,
-                                               pi = pi),
+                                               pi = pi,
+                                               y = model$parameters$y,
+                                               x = model$parameters$x,
+                                               index = model$parameters$index),
                        actual = model$series,
                        forecast = tsibble::as_tsibble(forecast_df[, c(df_names, base::paste0("lower", pi_lower), "yhat", c(base::paste0("upper", pi_upper)))], index = model$parameters$index))
 
