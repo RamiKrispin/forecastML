@@ -464,7 +464,7 @@ trainML <- function(input,
 #' @param pi A vector with numeric values between 0 and 1, define the level of the confidence of the prediction intervals of the forecast. By default calculate the 80% and 95% prediction intervals
 
 forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
-
+  `%>%` <- magrittr::`%>%`
   forecast_df <- df_names <- NULL
   # Error handling
   if(class(model) != "trainML"){
