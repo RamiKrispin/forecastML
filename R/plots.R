@@ -5,7 +5,7 @@
 #' @param margin A numeric, define the margin space between the subplot components
 #'
 plot_res <- function(model, na.rm = FALSE, margin = 0.04){
-
+  `%>%` <- magrittr::`%>%`
   if(base::class(model) != "trainML"){
     stop("The input model is not a 'trainML' object")
   }
@@ -43,6 +43,5 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
     plotly::layout(title = "Residuals Analysis")
   return(p_output)
 }
-
 
 
