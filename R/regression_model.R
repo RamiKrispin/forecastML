@@ -138,14 +138,18 @@ trainML <- function(input,
   }
   # Scaling the series
   if(!base::is.null(scale)){
+    y_temp <- NULL
     if(scale == "log"){
       df[[base::paste(y,"log", sep = "_")]] <- base::log(df[[y]])
+      y_temp <- y
       y <- base::paste(y,"log", sep = "_")
     } else if(scale == "normal"){
       df$y_normal <- (df$y - base::min(df$y)) / (base::max(df$y) - base::min(df$y))
+      y_temp <- y
       y <- "y_normal"
     } else if(scale == "standard"){
       df$y_standard <- (df$y - base::mean(df$y)) / stats::sd(df$y)
+      y_temp <- y
       y <- "y_standard"
     }
   }
@@ -412,6 +416,12 @@ trainML <- function(input,
     } else{
       f <- stats::as.formula(paste(y, "~ ", paste0(new_features, collapse = " + ")))
     }
+
+    if(!base::is.null(scale)){
+      y <- y_temp
+    }
+
+
     if(method_arg$step){
       md_init <- NULL
       md_init <- stats::lm(f, data = df1)
