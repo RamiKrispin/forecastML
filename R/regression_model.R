@@ -8,7 +8,7 @@
 #' monthly, weekly, day of the year, day of the week, and hourly respectively
 #' @param trend A list, define the trend structure. Possible arguments -
 #' "linear", a boolean variable, if set to TRUE defines a linear trend (e.g., index of 1,2,3,...,t, for a series with t observations)
-#' "power", an numeric value, defines the polynomial degree of the series index (for example a power = 0.5 define a square root index and power = 2 defines a squared index).
+#' "power", an numeric value, defines the polynomial degree of the series index (for example a power = 0.5 define a square root index and power = 2 defines a squared index). By default set to NULL
 #' "exponential" - a boolean variable, if set to TRUE defines an exponential trend.
 #' "log" - a boolean variable, if set to TRUE defines a log transformation for the trend.
 #' By default, the trend argument is set to a linear trend (i.e., power = 1)
@@ -69,12 +69,12 @@ trainML <- function(input,
 
     if(!"power" %in%  base::names(trend)){
       trend$power <- FALSE
-    } else if(!base::is.numeric(trend$power) && trend$power != FALSE){
+    } else if(!base::is.null(trend$power) && !base::is.numeric(trend$power) && trend$power != FALSE){
       stop("The value of the 'power' argument is not valid, can be either a numeric ",
            "(e.g., 2 for square, 0.5 for square root, etc.), or FALSE for disable")
     }
 
-    if(trend$linear && trend$power == 1){
+    if(trend$linear && !base::is.null(trend$power) && trend$power == 1){
       warning("Setting both the 'power' argument to 1 and the 'linear' argument to TRUE is equivalent. ",
               "To avoid redundancy in the variables, setting 'linear' to FALSE")
     }
@@ -139,8 +139,8 @@ trainML <- function(input,
   # Scaling the series
   if(!base::is.null(scale)){
     if(scale == "log"){
-      df$y_log <- base::log(df$y)
-      y <- "y_log"
+      df[[base::paste(y,"log", sep = "_")]] <- base::log(df[[y]])
+      y <- base::paste(y,"log", sep = "_")
     } else if(scale == "normal"){
       df$y_normal <- (df$y - base::min(df$y)) / (base::max(df$y) - base::min(df$y))
       y <- "y_normal"
@@ -620,7 +620,8 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
   }
 
   if(model$parameters$method == "lm"){
-    forecast_df$yhat <- NA
+    if(base::is.null(model$parameters$scale)){
+       forecast_df$yhat <- NA
 
     if(!base::is.null(model$parameters$lags)){
       for(i in 1:base::nrow(forecast_df)){
@@ -654,6 +655,44 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
           forecast_df[[base::paste("upper", 100 * pi[p], sep = "")]] <- fit$fit[,"upr"]
         }
         forecast_df$yhat <- fit$fit[,"fit"]
+      }
+    } else if(!base::is.null(model$parameters$scale)){
+      forecast_df$yhat <- NA
+
+      if(!base::is.null(model$parameters$lags) && model$parameters$lags == "lag"){
+        for(i in 1:base::nrow(forecast_df)){
+          for(p in base::seq_along(pi)){
+            fit <- NULL
+            fit <- base::exp(stats::predict(model$model, newdata = forecast_df[i,],
+                                            se.fit = TRUE,
+                                            interval = "prediction",
+                                            level = pi[p]))
+
+            forecast_df[[base::paste("lower", 100 * pi[p], sep = "")]][i] <- fit$fit[,"lwr"]
+            forecast_df[[base::paste("upper", 100 * pi[p], sep = "")]][i] <- fit$fit[,"upr"]
+          }
+          forecast_df$yhat[i] <- fit$fit[,"fit"]
+          for(l in model$parameters$lags){
+            if(i + l <= base::nrow(forecast_df)){
+              forecast_df[[base::paste("lag_", l, sep = "")]][i + l] <- forecast_df$yhat[i]
+            }
+          }
+
+        }
+      } else {
+        for(p in base::seq_along(pi)){
+          fit <- NULL
+          fit <- stats::predict(model$model, newdata = forecast_df,
+                                          se.fit = TRUE,
+                                          interval = "prediction",
+                                          level = pi[p])
+
+          forecast_df[[base::paste("lower", 100 * pi[p], sep = "")]] <- base::exp(fit$fit[,"lwr"])
+          forecast_df[[base::paste("upper", 100 * pi[p], sep = "")]] <- base::exp(fit$fit[,"upr"])
+        }
+        forecast_df$yhat <- exp(fit$fit[,"fit"])
+      }
+
     }
   }
 
@@ -668,7 +707,8 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
                                                x = model$parameters$x,
                                                index = model$parameters$index),
                        actual = model$series,
-                       forecast = tsibble::as_tsibble(forecast_df[, c(df_names, base::paste0("lower", pi_lower), "yhat", c(base::paste0("upper", pi_upper)))], index = model$parameters$index))
+                       forecast = tsibble::as_tsibble(forecast_df[, c(df_names, base::paste0("lower", pi_lower), "yhat", c(base::paste0("upper", pi_upper)))],
+                                                      index = model$parameters$index))
 
   final_output <- base::structure(output, class = "forecastML")
   return(final_output)
