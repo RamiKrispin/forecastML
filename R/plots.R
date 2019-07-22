@@ -44,4 +44,56 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
   return(p_output)
 }
 
+#' Plotting the forecast output
+#' @export
+#' @param forecast A forecastML object
+
+
+plot_fc <- function(forecast){
+
+  # Error handling
+
+
+  pi <- color_setting <- NULL
+  color_setting <- list(line = "#00526d")
+  pi <- base::sort(forecast$parameters$pi, decreasing = TRUE)
+  for(i in base::seq_along(forecast$parameters$pi)){
+    color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- RColorBrewer::brewer.pal(9, "Greys")[1 + i]
+  }
+
+
+  p <- plotly::plot_ly() %>%
+    plotly::add_lines(x = ~ forecast$actual[[forecast$parameters$index]],
+                      y = ~ forecast$actual[[forecast$parameters$y]],
+                      line = list(color = color_setting$line),
+                      name = "Actual")
+
+  for(i in base::seq_along(pi)){
+    p <- p %>%
+      plotly::add_ribbons(x = forecast$forecast[[forecast$parameters$index]],
+                          ymin = forecast$forecast[[paste("lower", pi[i] * 100, sep = "")]],
+                          ymax = forecast$forecast[[paste("upper", pi[i] * 100, sep = "")]],
+                          line = list(color = color_setting[[base::paste("pi", pi[i] * 100, sep = "")]]),
+                          fillcolor = color_setting[[base::paste("pi", pi[i] * 100, sep = "")]],
+                          name = base::paste(pi[i] * 100, "% Prediction Interval", sep = ""))
+  }
+
+
+
+  p <- p %>% plotly::add_lines(x = forecast$forecast[[forecast$parameters$index]],
+                               y = forecast$forecast$yhat,
+                               name = "Forecast",
+                               line = list(color = color_setting$line, dash = "dash")) %>%
+    plotly::layout(title = base::paste("Forecast of", forecast$parameters$y,
+                                       "Series <br> Method - ",
+                                       forecast$parameters$method,
+                                       "; Horizon - ",
+                                       forecast$parameters$h,
+                                       sep = " "),
+                   yaxis = list(title = forecast$parameters$y),
+                   xaxis = list(title = forecast$parameters$index)
+    )
+  return(p)
+
+}
 
