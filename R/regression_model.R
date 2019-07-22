@@ -107,8 +107,8 @@ trainML <- function(input,
   if(base::any(base::class(input) == "tbl_ts")){
     df <- input
   } else if(any(class(input) == "ts")){
-    df <- tsibble::as_tsibble(input) %>% setNames(c("index", "y"))
-    y <- "y"
+    y <- base::deparse(base::substitute(input))
+    df <- tsibble::as_tsibble(input) %>% setNames(c("index", y))
     if(!base::is.null(x)){
       warning("The 'x' argument cannot be used when input is a 'ts' class")
     }
@@ -662,6 +662,8 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
   output <- base::list(model = model$model,
                        parameters = base::list(h = h,
                                                pi = pi,
+                                               method = model$parameters$method,
+                                               scale = model$parameters$scale,
                                                y = model$parameters$y,
                                                x = model$parameters$x,
                                                index = model$parameters$index),
