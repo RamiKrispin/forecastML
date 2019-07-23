@@ -399,10 +399,16 @@ trainML <- function(input,
 
   # Setting the lags variables
 
-  if(!base::is.null(lags)){
+  if(!base::is.null(lags) && base::is.null(scale)){
     for(i in lags){
       df[base::paste("lag_", i, sep = "")] <- df[[y]] %>% dplyr::lag( i)
       new_features <- c(new_features, base::paste("lag_", i, sep = ""))
+    }
+    df1 <- df[(max(lags)+ 1):base::nrow(df),]
+  } else if(!base::is.null(lags) && !base::is.null(scale)){
+    for(i in lags){
+      df[base::paste("lag_scale", i, sep = "")] <- df[[y]] %>% dplyr::lag(i)
+      new_features <- c(new_features, base::paste("lag_scale", i, sep = ""))
     }
     df1 <- df[(max(lags)+ 1):base::nrow(df),]
   } else {
@@ -431,12 +437,26 @@ trainML <- function(input,
     )
 
   }
+  if(base::is.null(scale)){
   fitted <- base::data.frame(index = df1[[base::attributes(df1)$index2]],
                              fitted = stats::predict(md, newdata = df1))
 
   residuals <- base::data.frame(index = df1[[base::attributes(df1)$index2]],
                                 residuals =  df1[[y]] -  fitted$fitted) %>%
     tsibble::as_tsibble(index = "index")
+  } else if(!base::is.null(scale) && scale == "log"){
+    fitted <- base::data.frame(index = df1[[base::attributes(df1)$index2]],
+                               fitted = base::exp(stats::predict(md, newdata = df1)))
+
+    residuals <- base::data.frame(index = df1[[base::attributes(df1)$index2]],
+                                  residuals =  df1[[y]] -  fitted$fitted) %>%
+      tsibble::as_tsibble(index = "index")
+  }
+
+
+
+
+
   output <- list(model = md,
                  fitted = fitted,
                  residuals = residuals,
@@ -474,8 +494,11 @@ trainML <- function(input,
 #' @param pi A vector with numeric values between 0 and 1, define the level of the confidence of the prediction intervals of the forecast. By default calculate the 80% and 95% prediction intervals
 
 forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
+
   `%>%` <- magrittr::`%>%`
+
   forecast_df <- df_names <- NULL
+
   # Error handling
   if(class(model) != "trainML"){
     stop("The input model is invalid, must be a 'trainML' object")
@@ -617,9 +640,15 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
     forecast_df$linear_trend <- trend_start:trend_end
   }
 
-  if(!base::is.null(model$parameters$lags)){
+  if(!base::is.null(model$parameters$lags) && base::is.null(model$parameters$scale)){
     for(i in model$parameters$lags){
       forecast_df[[base::paste("lag_", i, sep = "")]] <- c(model$series[[model$parameters$y]][(base::nrow(model$series) - i + 1):base::nrow(model$series)] , base::rep(NA,base::nrow(forecast_df) - i))
+    }
+  } else  if(!base::is.null(model$parameters$lags) && !base::is.null(model$parameters$scale)){
+    if(model$parameters$scale == "log"){
+    for(i in model$parameters$lags){
+      forecast_df[[base::paste("lag_scale", i, sep = "")]] <- base::log(c(model$series[[model$parameters$y]][(base::nrow(model$series) - i + 1):base::nrow(model$series)] , base::rep(NA,base::nrow(forecast_df) - i)))
+    }
     }
   }
 
@@ -669,22 +698,24 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
     } else if(!base::is.null(model$parameters$scale)){
       forecast_df$yhat <- NA
 
-      if(!base::is.null(model$parameters$lags) && model$parameters$lags == "lag"){
+      if(!base::is.null(model$parameters$lags) && model$parameters$scale == "log"){
         for(i in 1:base::nrow(forecast_df)){
           for(p in base::seq_along(pi)){
             fit <- NULL
-            fit <- base::exp(stats::predict(model$model, newdata = forecast_df[i,],
+            fit <- stats::predict(model$model, newdata = forecast_df[i,],
                                             se.fit = TRUE,
                                             interval = "prediction",
-                                            level = pi[p]))
+                                            level = pi[p])
 
-            forecast_df[[base::paste("lower", 100 * pi[p], sep = "")]][i] <- fit$fit[,"lwr"]
-            forecast_df[[base::paste("upper", 100 * pi[p], sep = "")]][i] <- fit$fit[,"upr"]
+            forecast_df[[base::paste("lower", 100 * pi[p], sep = "")]][i] <- base::exp(fit$fit[,"lwr"])
+            forecast_df[[base::paste("upper", 100 * pi[p], sep = "")]][i] <- base::exp(fit$fit[,"upr"])
           }
-          forecast_df$yhat[i] <- fit$fit[,"fit"]
+
+          forecast_df$yhat[i] <- base::exp(fit$fit[,"fit"])
+
           for(l in model$parameters$lags){
             if(i + l <= base::nrow(forecast_df)){
-              forecast_df[[base::paste("lag_", l, sep = "")]][i + l] <- forecast_df$yhat[i]
+              forecast_df[[base::paste("lag_scale", l, sep = "")]][i + l] <- fit$fit[,"fit"]
             }
           }
 
