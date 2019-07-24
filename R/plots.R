@@ -60,14 +60,14 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys"){
   # Error handling
   if(base::is.null(pi_color)){
     pi_color <- "Greys"
-  } else if(pi_color %in% palette){
+  } else if(!pi_color %in% palette){
     warning("The 'pi_color' argument is not valid, using the default value ('Greys'")
     pi_color <- "Greys"
   }
 
   if(base::is.null(line_color)){
     line_color <- "#00526d"
-  } else if(base::is.character(line_color)){
+  } else if(!base::is.character(line_color)){
     warning("The 'line_color' argument is not valid, using the default value ('#00526d'")
     line_color <- "#00526d"
   }
@@ -76,7 +76,6 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys"){
   maxcolors <-  palette_df$maxcolors[base::which(base::row.names(palette_df) == pi_color)]
 
 
-  color_setting <- list(line = line_color)
   pi <- base::sort(forecast$parameters$pi, decreasing = TRUE)
   for(i in base::seq_along(forecast$parameters$pi)){
     color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- RColorBrewer::brewer.pal(maxcolors, pi_color)[1 + i]
@@ -86,7 +85,7 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys"){
   p <- plotly::plot_ly() %>%
     plotly::add_lines(x = ~ forecast$actual[[forecast$parameters$index]],
                       y = ~ forecast$actual[[forecast$parameters$y]],
-                      line = list(color = color_setting$line),
+                      line = list(color = line_color),
                       name = "Actual")
 
   for(i in base::seq_along(pi)){
@@ -104,7 +103,7 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys"){
   p <- p %>% plotly::add_lines(x = forecast$forecast[[forecast$parameters$index]],
                                y = forecast$forecast$yhat,
                                name = "Forecast",
-                               line = list(color = color_setting$line, dash = "dash")) %>%
+                               line = list(color = line_color, dash = "dash")) %>%
     plotly::layout(title = base::paste("Forecast of", forecast$parameters$y,
                                        "Series <br> Method - ",
                                        forecast$parameters$method,
