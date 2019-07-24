@@ -4,10 +4,14 @@
 \alias{plot_fc}
 \title{Plotting the forecast output}
 \usage{
-plot_fc(forecast)
+plot_fc(forecast, line_color = "#00526d", pi_color = "Greys")
 }
 \arguments{
 \item{forecast}{A forecastML object}
+
+\item{line_color}{A character, defines both the actual and forecast color, by default will use dark blue ("#00526d")}
+
+\item{pi_color}{A character, defines the color palette of the prediction intervals}
 }
 \description{
 Plotting the forecast output

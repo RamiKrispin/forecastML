@@ -22,7 +22,7 @@ monthly, weekly, day of the year, day of the week, and hourly respectively}
 
 \item{trend}{A list, define the trend structure. Possible arguments -
 "linear", a boolean variable, if set to TRUE defines a linear trend (e.g., index of 1,2,3,...,t, for a series with t observations)
-"power", an numeric value, defines the polynomial degree of the series index (for example a power = 0.5 define a square root index and power = 2 defines a squared index).
+"power", an numeric value, defines the polynomial degree of the series index (for example a power = 0.5 define a square root index and power = 2 defines a squared index). By default set to NULL
 "exponential" - a boolean variable, if set to TRUE defines an exponential trend.
 "log" - a boolean variable, if set to TRUE defines a log transformation for the trend.
 By default, the trend argument is set to a linear trend (i.e., power = 1)}
