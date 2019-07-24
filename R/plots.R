@@ -49,16 +49,35 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
 #' @param forecast A forecastML object
 
 
-plot_fc <- function(forecast){
+plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys"){
+
+  palette_df <- palette <- maxcolors <- pi <- color_setting <- NULL
+  palette_df <- RColorBrewer::brewer.pal.info
+  palette <- palette_df %>% base::row.names()
 
   # Error handling
+  if(base::is.null(pi_color)){
+    pi_color <- "Greys"
+  } else if(pi_color %in% palette){
+    warning("The 'pi_color' argument is not valid, using the default value ('Greys'")
+    pi_color <- "Greys"
+  }
+
+  if(base::is.null(line_color)){
+    line_color <- "#00526d"
+  } else if(base::is.character(line_color)){
+    warning("The 'line_color' argument is not valid, using the default value ('#00526d'")
+    line_color <- "#00526d"
+  }
 
 
-  pi <- color_setting <- NULL
-  color_setting <- list(line = "#00526d")
+  maxcolors <-  palette_df$maxcolors[base::which(base::row.names(palette_df) == pi_color)]
+
+
+  color_setting <- list(line = line_color)
   pi <- base::sort(forecast$parameters$pi, decreasing = TRUE)
   for(i in base::seq_along(forecast$parameters$pi)){
-    color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- RColorBrewer::brewer.pal(9, "Greys")[1 + i]
+    color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- RColorBrewer::brewer.pal(maxcolors, pi_color)[1 + i]
   }
 
 
