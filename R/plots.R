@@ -47,6 +47,8 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
 #' Plotting the forecast output
 #' @export
 #' @param forecast A forecastML object
+#' @param line_color A character, defines both the actual and forecast color, by default will use dark blue ("#00526d")
+#' @param pi_color A character, defines the color palette of the prediction intervals
 
 
 plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys"){
