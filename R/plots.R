@@ -51,11 +51,12 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
 #' @param pi_color A character, defines the color palette of the prediction intervals
 
 
-plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys"){
+plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys", theme = NULL){
 
   palette_df <- palette <- maxcolors <- pi <- color_setting <- NULL
   palette_df <- RColorBrewer::brewer.pal.info
   palette <- palette_df %>% base::row.names()
+
 
   # Error handling
   if(base::is.null(pi_color)){
@@ -81,11 +82,36 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys"){
     color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- RColorBrewer::brewer.pal(maxcolors, pi_color)[1 + i]
   }
 
+  if(!base::is.null(theme)){
+    if(theme == "darkBlue"){
+      col_setting <- base::list(
+        line_color = "white",
+        ribbon_color = "rgba(66, 134, 244, 0.5)" ,
+        forecast_line = "rgb(100, 200, 244, 0.1)",
+        gridcolor = "#444444",
+        zerolinecolor = "#6b6b6b",
+        linecolor = "#6b6b6b",
+        paper_bgcolor = "black",
+        plot_bgcolor = "black"
+      )
+    }
+  } else if(base::is.null(theme)){
+    col_setting <- base::list(
+      line_color = line_color,
+      ribbon_color = "rgba(66, 134, 244, 0.5)" ,
+      forecast_line = "rgb(100, 200, 244, 0.1)",
+      gridcolor = NULL,
+      zerolinecolor = NULL,
+      linecolor = NULL,
+      paper_bgcolor = NULL,
+      plot_bgcolor = "white"
+    )
+  }
 
   p <- plotly::plot_ly() %>%
     plotly::add_lines(x = ~ forecast$actual[[forecast$parameters$index]],
                       y = ~ forecast$actual[[forecast$parameters$y]],
-                      line = list(color = line_color),
+                      line = list(color = col_setting$line_color),
                       name = "Actual")
 
   for(i in base::seq_along(pi)){
@@ -110,9 +136,18 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys"){
                                        "; Horizon - ",
                                        forecast$parameters$h,
                                        sep = " "),
-                   yaxis = list(title = forecast$parameters$y),
-                   xaxis = list(title = forecast$parameters$index)
+                   paper_bgcolor = col_setting$paper_bgcolor,
+                   plot_bgcolor = col_setting$plot_bgcolor,
+                   yaxis = list(title = forecast$parameters$y,
+                                linecolor = col_setting$linecolor,
+                                zerolinecolor = col_setting$zerolinecolor,
+                                gridcolor= col_setting$gridcolor),
+                   xaxis = list(title = forecast$parameters$index,
+                                linecolor = col_setting$linecolor,
+                                zerolinecolor = col_setting$zerolinecolor,
+                                gridcolor= col_setting$gridcolor)
     )
+
   return(p)
 
 }
