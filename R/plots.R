@@ -121,6 +121,25 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys", theme 
       for(i in base::seq_along(forecast$parameters$pi)){
         color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
       }
+    } else if(theme == "normal"){
+      col_setting <- base::list(
+        line_color = "#00526d",
+        ribbon_color = c(150, 150, 150),
+        gridcolor = NULL,
+        zerolinecolor = NULL,
+        linecolor = NULL,
+        paper_bgcolor = "white",
+        plot_bgcolor = "white",
+        font = list(
+          color = 'black'
+        )
+      )
+
+      n_pi <- base::length(forecast$parameters$pi)
+      a_pi <- seq(from = 0.6, to = 0.8, length.out = n_pi) %>% base::sort(decreasing = FALSE)
+      for(i in base::seq_along(forecast$parameters$pi)){
+        color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
+      }
     }
   } else if(base::is.null(theme)){
     col_setting <- base::list(
