@@ -86,20 +86,46 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys", theme 
     if(theme == "darkBlue"){
       col_setting <- base::list(
         line_color = "white",
-        ribbon_color = "rgba(66, 134, 244, 0.5)" ,
-        forecast_line = "rgb(100, 200, 244, 0.1)",
+        ribbon_color = c(66, 134, 244),
         gridcolor = "#444444",
         zerolinecolor = "#6b6b6b",
         linecolor = "#6b6b6b",
         paper_bgcolor = "black",
-        plot_bgcolor = "black"
+        plot_bgcolor = "black",
+        font = list(
+          color = 'white'
+        )
       )
+
+      n_pi <- base::length(forecast$parameters$pi)
+      a_pi <- seq(from = 0.6, to = 0.8, length.out = n_pi) %>% base::sort(decreasing = FALSE)
+      for(i in base::seq_along(forecast$parameters$pi)){
+        color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
+      }
+    } else if(theme == "darkPink"){
+      col_setting <- base::list(
+        line_color = "white",
+        ribbon_color = c(227, 119, 194),
+        gridcolor = "#444444",
+        zerolinecolor = "#6b6b6b",
+        linecolor = "#6b6b6b",
+        paper_bgcolor = "black",
+        plot_bgcolor = "black",
+        font = list(
+          color = 'white'
+        )
+      )
+
+      n_pi <- base::length(forecast$parameters$pi)
+      a_pi <- seq(from = 0.6, to = 0.8, length.out = n_pi) %>% base::sort(decreasing = FALSE)
+      for(i in base::seq_along(forecast$parameters$pi)){
+        color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
+      }
     }
   } else if(base::is.null(theme)){
     col_setting <- base::list(
       line_color = line_color,
       ribbon_color = "rgba(66, 134, 244, 0.5)" ,
-      forecast_line = "rgb(100, 200, 244, 0.1)",
       gridcolor = NULL,
       zerolinecolor = NULL,
       linecolor = NULL,
@@ -129,7 +155,7 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys", theme 
   p <- p %>% plotly::add_lines(x = forecast$forecast[[forecast$parameters$index]],
                                y = forecast$forecast$yhat,
                                name = "Forecast",
-                               line = list(color = line_color, dash = "dash")) %>%
+                               line = list(color = col_setting$line_color, dash = "dash")) %>%
     plotly::layout(title = base::paste("Forecast of", forecast$parameters$y,
                                        "Series <br> Method - ",
                                        forecast$parameters$method,
@@ -138,6 +164,7 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys", theme 
                                        sep = " "),
                    paper_bgcolor = col_setting$paper_bgcolor,
                    plot_bgcolor = col_setting$plot_bgcolor,
+                   font = col_setting$font,
                    yaxis = list(title = forecast$parameters$y,
                                 linecolor = col_setting$linecolor,
                                 zerolinecolor = col_setting$zerolinecolor,
