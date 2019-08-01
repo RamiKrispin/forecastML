@@ -9,7 +9,11 @@ plot_fc(forecast, theme = "normal")
 \arguments{
 \item{forecast}{A forecastML object}
 
-\item{theme}{A character, defines the color theme to be used in the plot output. Available themes - "normal" (default), "darkBlue", "darkPink"}
+\item{theme}{A character, defines the color theme to be used in the plot output.
+Available themes - "normal" (default), "darkBlue", "darkPink", "darkGreen", "classic", "lightBeige"}
+}
+\value{
+A plotly object
 }
 \description{
 Plotting the forecast output
