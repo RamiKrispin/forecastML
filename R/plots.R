@@ -47,43 +47,37 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
 #' Plotting the forecast output
 #' @export
 #' @param forecast A forecastML object
-#' @param line_color A character, defines both the actual and forecast color, by default will use dark blue ("#00526d")
-#' @param pi_color A character, defines the color palette of the prediction intervals
+#' @param theme A character, defines the color theme to be used in the plot output. Available themes - "normal" (default), "darkBlue", "darkPink"
 
 
-plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys", theme = NULL){
+plot_fc <- function(forecast, theme = "normal"){
 
   palette_df <- palette <- maxcolors <- pi <- color_setting <- NULL
-  palette_df <- RColorBrewer::brewer.pal.info
-  palette <- palette_df %>% base::row.names()
-
-
-  # Error handling
-  if(base::is.null(pi_color)){
-    pi_color <- "Greys"
-  } else if(!pi_color %in% palette){
-    warning("The 'pi_color' argument is not valid, using the default value ('Greys'")
-    pi_color <- "Greys"
-  }
-
-  if(base::is.null(line_color)){
-    line_color <- "#00526d"
-  } else if(!base::is.character(line_color)){
-    warning("The 'line_color' argument is not valid, using the default value ('#00526d'")
-    line_color <- "#00526d"
-  }
-
-
-  maxcolors <-  palette_df$maxcolors[base::which(base::row.names(palette_df) == pi_color)]
-
 
   pi <- base::sort(forecast$parameters$pi, decreasing = TRUE)
-  for(i in base::seq_along(forecast$parameters$pi)){
-    color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- RColorBrewer::brewer.pal(maxcolors, pi_color)[1 + i]
-  }
 
-  if(!base::is.null(theme)){
-    if(theme == "darkBlue"){
+  if(base::is.null(theme) || !base::is.character(theme)){
+    stop("The value of the 'theme' argument is not valid")
+  } else if(theme == "normal"){
+    col_setting <- base::list(
+      line_color = "#00526d",
+      ribbon_color = c(150, 150, 150),
+      gridcolor = NULL,
+      zerolinecolor = NULL,
+      linecolor = NULL,
+      paper_bgcolor = "white",
+      plot_bgcolor = "white",
+      font = list(
+        color = 'black'
+      )
+    )
+
+    n_pi <- base::length(forecast$parameters$pi)
+    a_pi <- seq(from = 0.6, to = 0.8, length.out = n_pi) %>% base::sort(decreasing = FALSE)
+    for(i in base::seq_along(forecast$parameters$pi)){
+      color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
+    }
+  } else if(theme == "darkBlue"){
       col_setting <- base::list(
         line_color = "white",
         ribbon_color = c(66, 134, 244),
@@ -121,15 +115,15 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys", theme 
       for(i in base::seq_along(forecast$parameters$pi)){
         color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
       }
-    } else if(theme == "normal"){
+    } else if(theme == "test"){
       col_setting <- base::list(
-        line_color = "#00526d",
-        ribbon_color = c(150, 150, 150),
+        line_color = "rgb(40, 99, 148)",
+        ribbon_color = c(193, 136, 192),
         gridcolor = NULL,
-        zerolinecolor = NULL,
+        zerolinecolor = "rgb(197, 208, 232)",
         linecolor = NULL,
-        paper_bgcolor = "white",
-        plot_bgcolor = "white",
+        paper_bgcolor = "rgb(255, 239, 220)",
+        plot_bgcolor = "rgb(255, 239, 220)",
         font = list(
           color = 'black'
         )
@@ -141,17 +135,6 @@ plot_fc <- function(forecast, line_color = "#00526d", pi_color = "Greys", theme 
         color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
       }
     }
-  } else if(base::is.null(theme)){
-    col_setting <- base::list(
-      line_color = line_color,
-      ribbon_color = "rgba(66, 134, 244, 0.5)" ,
-      gridcolor = NULL,
-      zerolinecolor = NULL,
-      linecolor = NULL,
-      paper_bgcolor = NULL,
-      plot_bgcolor = "white"
-    )
-  }
 
   p <- plotly::plot_ly() %>%
     plotly::add_lines(x = ~ forecast$actual[[forecast$parameters$index]],
