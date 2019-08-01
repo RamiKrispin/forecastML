@@ -3,7 +3,13 @@
 #' @param model A trainML object
 #' @param na.rm A boolean, if TRUE will ignore missing values, by default set to FALSE
 #' @param margin A numeric, define the margin space between the subplot components
+#' @examples
 #'
+#' # Train a time series forecasting model
+#' md <- trainML(input = AirPassengers, trend = list(linear = TRUE), seasonal = "month")
+#'
+#' # create a residuals plot
+#' plot_res(md)
 plot_res <- function(model, na.rm = FALSE, margin = 0.04){
   `%>%` <- magrittr::`%>%`
   if(base::class(model) != "trainML"){
@@ -28,7 +34,9 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
   if(base::any(base::is.na(model$residuals)) && na.rm == FALSE){
     stop("The model residuals has missing values, please either check the residuals or set na.rm = TRUE")
   }
-  p3 <- forecastML::tsACF(model$residuals, na.rm = na.rm, plot = FALSE)
+
+  max_lag <- ifelse(stats::frequency(model$series) * 2 < base::nrow(model$series), stats::frequency(model$series) * 2, base::nrow(model$series))
+  p3 <- forecastML::tsACF(model$residuals, na.rm = na.rm, plot = FALSE, max.lag = stats::frequency(model$series) * 2)
 
   p4 <- plotly::plot_ly(x = model$residuals$residuals, type = "histogram",
                         marker = list(color = 'rgb(227, 119, 194)'),
@@ -47,7 +55,9 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
 #' Plotting the forecast output
 #' @export
 #' @param forecast A forecastML object
-#' @param theme A character, defines the color theme to be used in the plot output. Available themes - "normal" (default), "darkBlue", "darkPink"
+#' @param theme A character, defines the color theme to be used in the plot output.
+#' Available themes - "normal" (default), "darkBlue", "darkPink", "darkGreen", "classic", "lightBeige"
+#' @return A plotly object
 
 
 plot_fc <- function(forecast, theme = "normal"){
@@ -61,6 +71,8 @@ plot_fc <- function(forecast, theme = "normal"){
   } else if(theme == "normal"){
     col_setting <- base::list(
       line_color = "#00526d",
+      fc_line_color = "#00526d",
+      fc_line_mode = "dash",
       ribbon_color = c(150, 150, 150),
       gridcolor = NULL,
       zerolinecolor = NULL,
@@ -98,6 +110,50 @@ plot_fc <- function(forecast, theme = "normal"){
       for(i in base::seq_along(forecast$parameters$pi)){
         color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
       }
+    } else if(theme == "darkYellow"){
+      col_setting <- base::list(
+        line_color = "white",
+        fc_line_color = "white",
+        fc_line_mode = "dash",
+        ribbon_color = c(255, 254, 45),
+        gridcolor = "#444444",
+        zerolinecolor = "#6b6b6b",
+        linecolor = "#6b6b6b",
+        paper_bgcolor = "black",
+        plot_bgcolor = "black",
+        font = list(
+          color = 'white'
+        )
+      )
+
+      n_pi <- base::length(forecast$parameters$pi)
+      a_pi <- seq(from = 0.6, to = 0.8, length.out = n_pi) %>% base::sort(decreasing = FALSE)
+      for(i in base::seq_along(forecast$parameters$pi)){
+        color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
+      }
+    } else if(theme == "darkGreen"){
+      col_setting <- base::list(
+        # line_color = "white",
+        # fc_line_color = "white",
+        line_color = "rgb(83, 193, 88)",
+        fc_line_color = "rgb(83, 193, 88)",
+        fc_line_mode = "dash",
+        ribbon_color = c(52, 72, 128),
+        gridcolor = "#444444",
+        zerolinecolor = "#6b6b6b",
+        linecolor = "#6b6b6b",
+        paper_bgcolor = "black",
+        plot_bgcolor = "black",
+        font = list(
+          color = 'white'
+        )
+      )
+
+      n_pi <- base::length(forecast$parameters$pi)
+      a_pi <- seq(from = 0.6, to = 0.8, length.out = n_pi) %>% base::sort(decreasing = FALSE)
+      for(i in base::seq_along(forecast$parameters$pi)){
+        color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
+      }
     } else if(theme == "darkPink"){
       col_setting <- base::list(
         line_color = "white",
@@ -119,7 +175,7 @@ plot_fc <- function(forecast, theme = "normal"){
       for(i in base::seq_along(forecast$parameters$pi)){
         color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
       }
-    } else if(theme == "test"){
+    } else if(theme == "lightBeige"){
       col_setting <- base::list(
         line_color = "rgb(40, 99, 148)",
         fc_line_color = "rgb(40, 99, 148)",
@@ -162,6 +218,8 @@ plot_fc <- function(forecast, theme = "normal"){
       for(i in base::seq_along(forecast$parameters$pi)){
         color_setting[[base::paste("pi", pi[i] * 100, sep = "")]] <- base::paste("rgba(",base::paste(col_setting$ribbon_color, collapse = ","), a_pi[i] , ")", collapse = " ")
       }
+    } else {
+      stop("The value of the 'theme' argument is not valid")
     }
 
   p <- plotly::plot_ly() %>%
