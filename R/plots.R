@@ -10,6 +10,8 @@
 #'
 #' # create a residuals plot
 #' plot_res(md)
+#'
+
 plot_res <- function(model, na.rm = FALSE, margin = 0.04){
   `%>%` <- magrittr::`%>%`
   if(base::class(model) != "trainML"){
@@ -58,13 +60,31 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
 #' @param theme A character, defines the color theme to be used in the plot output.
 #' Available themes - "normal" (default), "darkBlue", "darkPink", "darkGreen", "classic", "lightBeige"
 #' @return A plotly object
-
+#' @examples
+#'
+#' # Train a time series forecasting model
+#' md <- trainML(input = AirPassengers, trend = list(linear = TRUE), seasonal = "month")
+#' fc <- forecastML(model = md, h = 60)
+#'
+#' # Plot the forecast model
+#' plot_fc(fc)
+#'
+#' # Use different plot theme
+#' plot_fc(fc, theme = "darkPink")
+#'
 
 plot_fc <- function(forecast, theme = "normal"){
 
   palette_df <- palette <- maxcolors <- pi <- color_setting <- NULL
 
   pi <- base::sort(forecast$parameters$pi, decreasing = TRUE)
+
+  # Error handling
+
+  if(base::class(forecast) != "forecastML"){
+    stop("The 'forecast' argument is not valid")
+  }
+
 
   if(base::is.null(theme) || !base::is.character(theme)){
     stop("The value of the 'theme' argument is not valid")

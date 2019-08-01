@@ -18,3 +18,16 @@ A plotly object
 \description{
 Plotting the forecast output
 }
+\examples{
+
+# Train a time series forecasting model
+md <- trainML(input = AirPassengers, trend = list(linear = TRUE), seasonal = "month")
+fc <- forecastML(model = md, h = 60)
+
+# Plot the forecast model
+plot_fc(fc)
+
+# Use different plot theme
+plot_fc(fc, theme = "darkPink")
+
+}

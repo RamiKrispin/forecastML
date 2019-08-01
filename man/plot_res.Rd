@@ -23,4 +23,5 @@ md <- trainML(input = AirPassengers, trend = list(linear = TRUE), seasonal = "mo
 
 # create a residuals plot
 plot_res(md)
+
 }
