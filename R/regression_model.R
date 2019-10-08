@@ -642,12 +642,12 @@ forecastML <- function(model, newdata = NULL, h, pi = c(0.95, 0.80)){
 
   if(!base::is.null(model$parameters$lags) && base::is.null(model$parameters$scale)){
     for(i in model$parameters$lags){
-      forecast_df[[base::paste("lag_", i, sep = "")]] <- c(model$series[[model$parameters$y]][(base::nrow(model$series) - i + 1):base::nrow(model$series)] , base::rep(NA,base::nrow(forecast_df) - i))
+      forecast_df[[base::paste("lag_", i, sep = "")]] <- utils::tail(model$series[[model$parameters$y]], i)[1:base::nrow(forecast_df)]
     }
   } else  if(!base::is.null(model$parameters$lags) && !base::is.null(model$parameters$scale)){
     if(model$parameters$scale == "log"){
     for(i in model$parameters$lags){
-      forecast_df[[base::paste("lag_scale", i, sep = "")]] <- base::log(c(model$series[[model$parameters$y]][(base::nrow(model$series) - i + 1):base::nrow(model$series)] , base::rep(NA,base::nrow(forecast_df) - i)))
+      forecast_df[[base::paste("lag_scale", i, sep = "")]] <- base::log(utils::tail(model$series[[model$parameters$y]], i)[1:base::nrow(forecast_df)])
     }
     }
   }
