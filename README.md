@@ -1,2 +1,3 @@
 # forecastML
-R package for time series forecasting with linear regression and machine learning models... work in progress
+
+The forecastML R package provides a framework for forecasting regular time series data with regression models.
