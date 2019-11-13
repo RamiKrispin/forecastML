@@ -38,7 +38,7 @@ plot_res <- function(model, na.rm = FALSE, margin = 0.04){
   }
 
   max_lag <- ifelse(stats::frequency(model$series) * 2 < base::nrow(model$series), stats::frequency(model$series) * 2, base::nrow(model$series))
-  p3 <- forecastML::tsACF(model$residuals, na.rm = na.rm, plot = FALSE, max.lag = stats::frequency(model$series) * 2)
+  p3 <- forecastML::tsACF(model$residuals, na.rm = na.rm, plot = FALSE, max.lag = max_lag)
 
   p4 <- plotly::plot_ly(x = model$residuals$residuals, type = "histogram",
                         marker = list(color = 'rgb(227, 119, 194)'),
